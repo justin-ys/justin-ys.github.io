@@ -1,0 +1,33 @@
+<link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400..700" rel="stylesheet">
+.menubar {
+	position: sticky;
+	top: 0;
+	overflow: hidden;
+	background-color: white;
+	border-right: 1px solid black;
+}
+
+.menu-item {
+		font-family: 'Source Code Pro', serif;
+		color: #1993bd;
+		padding-left: 0.5em;
+		font-size: 3em;
+		background: #d3d6db;
+		border-bottom: 1px dotted black;
+}
+
+.menu-item a {
+		color: #1993bd;
+}
+
+
+.menu-header {
+	background: gray;
+	height: 12vh;
+	padding-top: 0.5em;
+	padding-left: 0.5em;
+	padding-bottom: 0;
+	font-size: 4em;
+	font-family: 'Figtree', serif;
+	font-variation-settings: "wght" 550;
+}
