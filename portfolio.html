@@ -3,11 +3,13 @@
 	<head>
 		<title>Portfolio</title>
 		<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400..700" rel="stylesheet">
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
 	</head>
 	<style>
 		* {
 			margin: 0;
 			padding: 0;
+			max-width: 100%;
 		}
 		
 		html {
@@ -43,21 +45,22 @@
 		
 		.portfolio-text-container {
 			display: flex;
+			flex-shrink: 1;
 			flex-direction: column;
-			margin: 1.5em;
-			gap: 0.5em
+			margin: calc(1em + 0.5vw);
+			gap: 0.5em;
 		}
 		
 		.portfolio-title {
 			font-family: 'Figtree', serif;
 			font-variation-settings: "wght" 500;
-			font-size: 1.5vw;
+			font-size: calc(0.3em + 1.3vw);
 		}
 			
 		.portfolio-body {
 			font-family: 'Figtree', serif;
 			font-variation-settings: "wght" 400;
-			font-size: 1vw;
+			font-size: calc(0.2em + 1.1vw);
 			margin-bottom: 1em;
 		}
 		
@@ -65,7 +68,7 @@
 			background-color: black;
 			color: white;
 			text-align: center;
-			font-size: 1.5vw;
+			font-size: calc(0.3em + 1.1vw);
 			padding: 0.5em;
 			font-family: 'Figtree', serif;
 			font-variation-settings: "wght" 700;
@@ -77,9 +80,24 @@
 			font-variation-settings: "wght" 550;
 			display: inline-block;
 			text-align: center;
-			font-size: 3vw;
-			margin-left: 0.1em;
+			font-size: calc(0.3em + 2.8vw);
+			margin-left: calc(0.2vw + 0.5em);
 			margin-top: 0.25em;
+		}
+		
+		@media (width <= 700px) {
+			.portfolio-body {
+				font-size: calc(0.5em + 1.1vw);
+			}
+			.portfolio-title {
+				font-size: calc(0.8em + 1.3vw);
+			}
+			.portfolio-heading {
+				font-size: calc(0.6em + 1.1vw);
+			}
+			.title {
+				font-size: calc(0.9em + 2.8vw);
+			}
 		}
 			
 	</style>
@@ -87,7 +105,7 @@
 	<body>
 		<div id='menubar'></div>
 		<div class='title'>Things I've done</div>
-		<hr style="margin: 1em; color: black">
+		<hr style="margin: calc(0.2vw + 0.5em); color: black">
 		<div class='portfolio-container'>
 			<div class='portfolio-item portfolio-right'>
 				<div class='portfolio-heading'>2018</div>
@@ -123,16 +141,16 @@
 					<div class='portfolio-body'>I was part of the Vaccine Hunters Canada team since its early days in March of 2020. It was a bittersweet time - the roll-out was chaotic, to say the least, and appointments were often not found through Ontario's system, but by word of mouth: "There's a pop-up clinic happening in this postal code at this time, here's a link to book it..." Vaccine Hunters started as more of a discussion board for people to share what they knew, but given the need the country had, it quickly spiralled into a huge operation with a team of volunteers finding appointments for people who needed vaccines constantly. The drive of some of our team members to get people appointments and wait without end on booking portal upon booking portal was inspiring, to say the least... I can't say I even compared with the top performers. I always jump at the chance to automate things when they can be automated, though, and I saw an opportunity here, so I proposed a web portal where users could find vaccination appointments for themselves. A lot of other developers saw potential for this idea, so we assembled a small team. I created a project outline and detailed our objectives for the early phases of the program, contacted data sources to see whether they would be alright with having their data scraped, and led our first few development meetings. I also kickstarted our FastAPI backend in Python. Eventually, I handed off leadership to two of our (very talented!) developers to focus on other real life obligations, but the project was a resounding success, with over a million users and recognition from the Prime Minister:</div>
 					<blockquote class="twitter-tweet"><p lang="en" dir="ltr">Throughout the pandemic, Canadians have stepped up – and the team at <a href="https://twitter.com/VaxHuntersCan?ref_src=twsrc%5Etfw">@VaxHuntersCan</a> did so in a big way. Thank you for everything you’ve done to help get people vaccinated. And with enough doses for everyone, I know your website will help us finish the fight against COVID-19. <a href="https://t.co/HHcB0nFM7O">https://t.co/HHcB0nFM7O</a></p>&mdash; Justin Trudeau (@JustinTrudeau) <a href="https://twitter.com/JustinTrudeau/status/1423436187251920907?ref_src=twsrc%5Etfw">August 6, 2021</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 					<div class='portfolio-body'>As a side note (maybe I should make this into a blog post when the blog is ready) I volunteered at some vaccine drives and clinics as well, including the Scotiabank clinic where we broke the world record for people vaccinated at a single pop up (25,000). It was actually a lot of fun - I got to document people's sociodemographic data using Salesforce, and got about 150 records done by the end of the evening.<br>
-					<img style="margin: 1em" width=30% src="resource/scotiabank.jpg"></img>
+					<img style="margin: 1em" width=60% src="resource/scotiabank.jpg"></img>
 					</div>
 					<div class='portfolio-title'>VaxBot</div>
 					<div class='portfolio-body'>While I ramped down from operations on FYI, I still had enough spare time to develop VaxBot, a Discord interface made in Python for FYI which delivered curated appointments based on your location and dosage number needed. I also connected it to Vaccine Ontario's database, another team with a similar objective to FYI with a larger data-set. This meant that our team could just redirect you to the channel if you wanted to find vaccination appointments in a certain postal code instead of looking themselves or having to go to the website This turned out to be very useful, as the bot racked up around 400 daily users at its peak and over 10,000 in total.</div>
-					<a href="https://github.com/Vaccine-Hunters-Canada/VaxFinder-Discord"><img src="https://gh-card.dev/repos/Vaccine-Hunters-Canada/VaxFinder-Discord.svg"></a>
+					<a style="flex-shrink: 1" href="https://github.com/Vaccine-Hunters-Canada/VaxFinder-Discord"><img src="https://gh-card.dev/repos/Vaccine-Hunters-Canada/VaxFinder-Discord.svg"></a>
 					<div class='portfolio-title'>Vaccine Ontario</div>
 					<div class='portfolio-body'>I also contributed to Vaccine Ontario's project while working on VaxBot - their database had some broken entries in several places that my bot identified, so I pointed them out to their team. I made web-scrapers for two sites they needed as well, adding hundreds of new appointments.</div>
 					<div class='portfolio-title'>SCP Area 89</div>
 					<div class='portfolio-body'>As I became more familiar with music creation, I was able to develop a full EP for my friend's Dungeons & Dragons game that took place in an SCP facility (the <a href="scp-wiki.net">SCP foundation</a> is a fictional universe that is worth reading about!). You can listen here:</div>
-					<iframe style="border: 0; width: 350px; height: 470px; margin: 1vw" src="https://bandcamp.com/EmbeddedPlayer/album=1649481392/size=large/bgcol=ffffff/linkcol=0687f5/tracklist=false/transparent=true/" seamless><a href="https://jm-5.bandcamp.com/album/scp-area-89-ost-ep-1">SCP Area 89 OST - EP 1 by JM5</a></iframe>
+					<iframe style="border: 0; max-width: 100%; flex-shrink: 1; height: 470px; margin: 1vw" src="https://bandcamp.com/EmbeddedPlayer/album=1649481392/size=large/bgcol=ffffff/linkcol=0687f5/tracklist=false/transparent=true/" seamless><a href="https://jm-5.bandcamp.com/album/scp-area-89-ost-ep-1">SCP Area 89 OST - EP 1 by JM5</a></iframe>
 				</div>
 			</div>
 			<div class='portfolio-item portfolio-right'>
@@ -140,7 +158,7 @@
 				<div class='portfolio-text-container'>
 					<div class='portfolio-title'>Couette Fluid Simulation (& Spylike)</div>
 					<div class='portfolio-body'>I began developing a <a href="https://github.com/justin-ys/Spylike">Pure C++ ASCII game engine using ncurses</a> which is currently still in development, but it was very useful for my physics final project, which was a Couette Flow (very basic Navier Stokes simplifcation) simulator in a terminal.</div>
-					<img style="margin: 1em" width=40% src="resource/couette.png"></img>
+					<img style="margin: 1em" width=60% src="resource/couette.png"></img>
 					<div class='portfolio-title'>BetterDubz</div>
 					<div class='portfolio-body'>At HackHarvard 2022, our team of 3 made a mini-studio to <a href="https://devpost.com/software/dubettr">automatically dub videos</a> given audio with the wav2lip machine learning dubbing library. I made the PyQt5 front-end and the API for video processing, as well as handled some of the ffmpeg logic. I thought it was an interesting idea, at least. I'm thinking of continuing it on a larger scale in the future if time permits since I could definitely see it as a timesaver.</div>
 				</div>
@@ -150,10 +168,10 @@
 				<div class='portfolio-text-container'>
 					<div class='portfolio-title'>UHN DATA - CanDIG</div>
 					<div class='portfolio-body'>I interned on the <a href="https://www.distributedgenomics.ca/">CanDIG team</a> at UHN this summer, which ended up being a lot of fun. My main project was their data ingest pipeline. CanDIG is a federated cancer research database storing clinical (think patient health history - age, date of birth, medical conditions...) and genomic (entire genomes) data; their stack had databases for both types of data ready-to-go, but there was no real way to go from raw researcher data, through their Extract Transform Load (ETL) process, into those databases. This is where I came in and developed a microservice with Docker that made the conversions necessary to actually get it there. The clinical data output from our ETL was nested, for instance, and I needed to flatten it into a different structure (which was unfortunately not always trivial due to ambiguous pieces in the data model we were using) so it could be put into our relational database. We also needed a new way to specify genomic data file locations and their related clinical data which I implemented. After that was done, I created a web UI using React so there was a user-friendly way for researchers to upload data. I was able to deliver a fully functioning demo of all this at our end-of-summer DATA tech demo. I did some DevOps and miscellaneous work on the side at the same time, including refactoring several microservices for a new authentication model, creating a GitHub Action that validated our entire stack (which immediately managed to find some long-standing configuration issues), and automatically creating pull requests on our main repository when sub-modules were updated.</div>
-					<img style="margin: 1em" width=70% src="resource/dataportal.png"></img>
+					<img style="margin: 1em" width=100% src="resource/dataportal.png"></img>
 					<div class='portfolio-title'>RGBike</div>
 					<div class='portfolio-body'>I wanted to do some late-night bike riding during the summer, so as a side project, I hooked up a programmable RGB LED strip to my bike and controlled it with an Arduino mounted at the front. An arcade button attached to the left handle (very precariously) allows one to change the light mode. It's powered with a LIPO battery at the back of the bike. I got through a very nice evening ride in Markham, Ontario equipped with it, without having to worry at all about cars not seeing me. Afterwards, it unfortunately sustained some damage, and so I'm now looking into developing a custom PCB with waterproof connectors to make it a lot more compact and durable.</div>
-					<img style="margin: 1em" width=50% src="resource/rgbike.jpg"></img>
+					<img style="margin: 1em" width=90% src="resource/rgbike.jpg"></img>
 					<div class='portfolio-title'>This website</div>
 					<div class='portfolio-body'>This website has been around since late 2022, but now it has a Portfolio page! I'm currently developing a blog in React as well so stay tuned for that.</div>
 			</div>
