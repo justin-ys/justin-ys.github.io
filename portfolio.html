@@ -3,6 +3,7 @@
 	<head>
 		<title>Portfolio</title>
 		<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400..700" rel="stylesheet">
+		<link rel="stylesheet" href="styles/menubar.css">
 		<meta name="viewport" content="width=device-width,initial-scale=1" />
 	</head>
 	<style>
@@ -34,13 +35,13 @@
 		}
 		
 		.portfolio-right {
-			width: 70%;
+			width: 95%;
 			margin-left: 1em;
 		}
 		
 		.portfolio-left {
-			margin-left: 30%;
-			margin-right: 1em;
+			width: 95%;
+			margin-left: 1em;
 		}
 		
 		.portfolio-text-container {
@@ -65,6 +66,7 @@
 		}
 		
 		.portfolio-heading {
+			display: inline-block;
 			background-color: black;
 			color: white;
 			text-align: center;
@@ -72,7 +74,6 @@
 			padding: 0.5em;
 			font-family: 'Figtree', serif;
 			font-variation-settings: "wght" 700;
-			width: 10%;
 		}
 		
 		.title {
@@ -94,6 +95,12 @@
 			}
 			.portfolio-heading {
 				font-size: calc(0.6em + 1.1vw);
+			}
+			.portfolio-left {
+				margin-left: 10%;
+			}
+			.portfolio-right {
+				width: 90%;
 			}
 			.title {
 				font-size: calc(0.9em + 2.8vw);
@@ -158,7 +165,7 @@
 				<div class='portfolio-text-container'>
 					<div class='portfolio-title'>Couette Fluid Simulation (& Spylike)</div>
 					<div class='portfolio-body'>I began developing a <a href="https://github.com/justin-ys/Spylike">Pure C++ ASCII game engine using ncurses</a> which is currently still in development, but it was very useful for my physics final project, which was a Couette Flow (very basic Navier Stokes simplifcation) simulator in a terminal.</div>
-					<img style="margin: 1em" width=60% src="resource/couette.png"></img>
+					<img style="margin-top: 1em; margin-bottom: 1em; width: 100%; height: 150%" width=60% src="resource/couette.png"></img>
 					<div class='portfolio-title'>BetterDubz</div>
 					<div class='portfolio-body'>At HackHarvard 2022, our team of 3 made a mini-studio to <a href="https://devpost.com/software/dubettr">automatically dub videos</a> given audio with the wav2lip machine learning dubbing library. I made the PyQt5 front-end and the API for video processing, as well as handled some of the ffmpeg logic. I thought it was an interesting idea, at least. I'm thinking of continuing it on a larger scale in the future if time permits since I could definitely see it as a timesaver.</div>
 				</div>
@@ -168,12 +175,19 @@
 				<div class='portfolio-text-container'>
 					<div class='portfolio-title'>UHN DATA - CanDIG</div>
 					<div class='portfolio-body'>I interned on the <a href="https://www.distributedgenomics.ca/">CanDIG team</a> at UHN this summer, which ended up being a lot of fun. My main project was their data ingest pipeline. CanDIG is a federated cancer research database storing clinical (think patient health history - age, date of birth, medical conditions...) and genomic (entire genomes) data; their stack had databases for both types of data ready-to-go, but there was no real way to go from raw researcher data, through their Extract Transform Load (ETL) process, into those databases. This is where I came in and developed a microservice with Docker that made the conversions necessary to actually get it there. The clinical data output from our ETL was nested, for instance, and I needed to flatten it into a different structure (which was unfortunately not always trivial due to ambiguous pieces in the data model we were using) so it could be put into our relational database. We also needed a new way to specify genomic data file locations and their related clinical data which I implemented. After that was done, I created a web UI using React so there was a user-friendly way for researchers to upload data. I was able to deliver a fully functioning demo of all this at our end-of-summer DATA tech demo. I did some DevOps and miscellaneous work on the side at the same time, including refactoring several microservices for a new authentication model, creating a GitHub Action that validated our entire stack (which immediately managed to find some long-standing configuration issues), and automatically creating pull requests on our main repository when sub-modules were updated.</div>
-					<img style="margin: 1em" width=100% src="resource/dataportal.png"></img>
+					<img style="margin: 1em; width: auto; height: 100%" src="resource/dataportal.png"></img>
 					<div class='portfolio-title'>RGBike</div>
 					<div class='portfolio-body'>I wanted to do some late-night bike riding during the summer, so as a side project, I hooked up a programmable RGB LED strip to my bike and controlled it with an Arduino mounted at the front. An arcade button attached to the left handle (very precariously) allows one to change the light mode. It's powered with a LIPO battery at the back of the bike. I got through a very nice evening ride in Markham, Ontario equipped with it, without having to worry at all about cars not seeing me. Afterwards, it unfortunately sustained some damage, and so I'm now looking into developing a custom PCB with waterproof connectors to make it a lot more compact and durable.</div>
-					<img style="margin: 1em" width=90% src="resource/rgbike.jpg"></img>
+					<img style="margin-top: 1em; margin-bottom: 1em; width: auto; height: 100%" src="resource/rgbike.jpg"></img>
 					<div class='portfolio-title'>This website</div>
 					<div class='portfolio-body'>This website has been around since late 2022, but now it has a Portfolio page! I'm currently developing a blog in React as well so stay tuned for that.</div>
+					<div class='portfolio-title'>Retrograde</div>
+					<div class='portfolio-body'>Retrograde has been one of my most significant projects yet, taking up thousands of lines of C++ and months of effort. </div>
+					<img style="margin-top: 1em; margin-bottom: 1em; width: auto; height: 100%" src="resource/retrograde-1.png"></img>
+					<div class='portfolio-body'>It's a roguelike/platformer game built in a game engine made from scratch. Containing 11 levels, including a final boss, the demo is around 20-30 minutes of playtime total for a first run. I also composed a chiptune soundtrack in Famitracker, a "tracker" music editor which simulates real Nintendo NES hardware. </div>
+					<img style="margin-top: 1em; margin-bottom: 1em; width: auto; height: 100%" src="resource/retrograde-3.png"></img>
+					<div class='portfolio-body'>A lot of learning and technical effort was required to truly make a game from scratch. I implemented a graphics/rendering engine, communication through events, level loading, a tile-based entity system, and a lot more. I used <a href="https://www.mapeditor.org/">Tiled</a> to create the level maps by-hand and made an exporter for a custom file format that the game could use. The game has some extra challenges like collecting the most treasure and exploring some optional rooms. Overall I'm pretty happy to have released something playable! </div>
+					<img style="margin-top: 1em; margin-bottom: 1em; width: auto; height: 120%" src="resource/retrograde-2.png"></img>
 			</div>
 		</div>
 	</body>

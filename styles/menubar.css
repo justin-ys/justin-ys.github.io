@@ -8,11 +8,7 @@
 }
 
 .menu-item {
-		font-family: 'Source Code Pro', serif;
 		color: #1993bd;
-		padding-left: 0.5em;
-		font-size: 3em;
-		background: #d3d6db;
 		border-bottom: 1px dotted black;
 }
 
@@ -27,7 +23,13 @@
 	padding-top: 0.5em;
 	padding-left: 0.5em;
 	padding-bottom: 0;
-	font-size: 4em;
+	font-size: calc(0.7em + 1vw);
 	font-family: 'Figtree', serif;
 	font-variation-settings: "wght" 550;
+}
+
+@media (width <= 800px) {
+	.menubar {
+		font-size: 0.8em;
+	}
 }
