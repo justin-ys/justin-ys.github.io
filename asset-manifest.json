@@ -1,0 +1,26 @@
+{
+  "files": {
+    "main.css": "/static/css/main.437a26f5.css",
+    "main.js": "/static/js/main.e643ca49.js",
+    "static/js/453.29ab158c.chunk.js": "/static/js/453.29ab158c.chunk.js",
+    "static/media/rgbike.jpg": "/static/media/rgbike.961209bca484c0cc38da.jpg",
+    "static/media/vaxbot2.png": "/static/media/vaxbot2.54e512ca4630c3374ed2.png",
+    "static/media/vaxbot1.png": "/static/media/vaxbot1.9f338d16e85c5a5beddc.png",
+    "static/media/rgbike2.jpg": "/static/media/rgbike2.7de15b5d509967d97d9e.jpg",
+    "static/media/dataportal.png": "/static/media/dataportal.af93009265f0fdc372c3.png",
+    "static/media/lightype.png": "/static/media/lightype.89b69e1b5bf8aca65014.png",
+    "static/media/retrograde-3.png": "/static/media/retrograde-3.74a77ec48c1bce584a71.png",
+    "static/media/couette.png": "/static/media/couette.6d4929250067180c1929.png",
+    "static/media/retrograde-1.png": "/static/media/retrograde-1.c0cac480173335c7a3b0.png",
+    "static/media/retrograde-2.png": "/static/media/retrograde-2.6084a4ed2fbb0bcf7454.png",
+    "static/media/logo.svg": "/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
+    "index.html": "/index.html",
+    "main.437a26f5.css.map": "/static/css/main.437a26f5.css.map",
+    "main.e643ca49.js.map": "/static/js/main.e643ca49.js.map",
+    "453.29ab158c.chunk.js.map": "/static/js/453.29ab158c.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.437a26f5.css",
+    "static/js/main.e643ca49.js"
+  ]
+}
