@@ -12,8 +12,8 @@ export default function MainPage() {
     const [path, setPath] = useState("/home");
 
     useEffect(() => {
-        console.log(location.pathname);
         setPath(location.pathname);
+        document.title = location.pathname == "/portfolio" ? "Things I've Done" : "Welcome!"
     }, [location])
 
     return <div>
