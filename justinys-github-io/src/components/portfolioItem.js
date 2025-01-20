@@ -1,13 +1,12 @@
 import github from '../resource/github.png';
 import { Splide, SplideSlide } from '@splidejs/react-splide';
-import { Link } from 'react-router'
 
 function PortfolioGithubLink(props) {
-    return <div style={{ border: '0.1em solid black', borderRadius: '0.25em',
-        backgroundColor: 'white', display: 'inline-flex', flexDirection: 'row', alignItems: 'center', gap: '1em', padding: '0.5em', cursor: 'pointer'}}>
+    return <a href={props.github} style={{ border: '0.1em solid black', borderRadius: '0.25em',
+        backgroundColor: 'white', display: 'inline-flex', flexDirection: 'row', alignItems: 'center', gap: '1em', padding: '0.5em'}}>
         <img style={{ width: '2em', height: 'auto'}} src={github}/>
         {props.github}
-    </div>
+    </a>
 }
 
 export default function PortfolioItem(props) {
