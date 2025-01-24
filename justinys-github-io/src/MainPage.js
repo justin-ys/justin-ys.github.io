@@ -16,7 +16,7 @@ export default function MainPage() {
         document.title = location.pathname == "/portfolio" ? "Things I've Done" : "Welcome!"
     }, [location])
 
-    return <div>
+    return <div className="MainPage">
         <MenuBar />
         {path == "/portfolio" ? <Portfolio /> : <HomePage />}
         <WalkMan />
