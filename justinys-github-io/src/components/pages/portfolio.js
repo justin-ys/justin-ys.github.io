@@ -15,7 +15,7 @@ export default function Portfolio() {
 
     return <div style={{ padding: '1vw' }}>
         <Typewriter text="Things I've Done" time="1" colors={['black']}/>
-        <ResponsiveMasonry columnsCountBreakPoints={{800: 1, 1000: 2}}>
+        <ResponsiveMasonry columnsCountBreakPoints={{1200: 1, 1201: 2}}>
             <Masonry columnsCount={2} gutter='1.5em'>
                 <PortfolioItem title="Retrograde"
                                body={[<p>One of my most ambitious projects yet, <i>Retrograde</i> is a terminal-based

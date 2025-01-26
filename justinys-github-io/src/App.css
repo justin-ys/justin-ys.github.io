@@ -21,11 +21,11 @@ body {
 
 .homeTitle {
   font-family: 'Roboto';
-  @media (width <= 800px) {
+  @media (width <= 1200px) {
     margin-top: 5vw;
     font-size: 10vw;
   }
-  @media (width > 800px) {
+  @media (width > 1200px) {
     margin-top: 1vw;
     font-size: 3.5vw;
   }
@@ -35,10 +35,10 @@ body {
   font-family: Roboto;
   margin-top: 1em;
   margin-bottom: 1em;
-  @media (width <= 800px) {
+  @media (width <= 1200px) {
     font-size: 5vw;
   }
-  @media (width > 800px) {
+  @media (width > 1200px) {
     font-size: 2vw;
   }
 }
@@ -90,10 +90,10 @@ body {
 .portfolio-title {
   font-family: 'Figtree', serif;
   font-variation-settings: "wght" 700;
-  @media (width >= 800px) {
+  @media (width >= 1200px) {
     font-size: 2.2vw;
   }
-  @media (width < 800px) {
+  @media (width < 1200px) {
     font-size: 7vw;
   }
   margin-bottom: 1em;
@@ -102,20 +102,20 @@ body {
 .portfolio-body {
   font-family: 'Figtree', serif;
   font-variation-settings: "wght" 400;
-  @media (width >= 800px) {
+  @media (width >= 1200px) {
     font-size: 1.2vw;
   }
-  @media (width < 800px) {
+  @media (width < 1200px) {
     font-size: 5vw;
   }
   margin-bottom: 1em;
 }
 
 .portfolio-image-container {
-  @media (width <= 800px) {
+  @media (width <= 1200px) {
     max-width: 20em;
   }
-  @media (width > 800px) {
+  @media (width > 1200px) {
     max-width: 50em;
   }
   margin-top: 1em;

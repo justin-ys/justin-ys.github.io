@@ -17,7 +17,7 @@ export default function PortfolioItem(props) {
         {props.images ?
             <div className="portfolio-image-container">
                 <Splide options={{ fixedWidth: '50em', breakpoints: {
-                    800: {
+                    1200: {
                         fixedWidth: '20em'
                     }
                 },

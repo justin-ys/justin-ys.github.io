@@ -17,12 +17,12 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
   width: 0;
   overflow: hidden;
-  @media (width <= 800px) {
+  @media (width <= 1200px) {
     margin-bottom: 4vw;
     margin-top: 2vw;
     font-size: 12vw;
   }
-  @media (width > 800px) {
+  @media (width > 1200px) {
     margin-bottom: 4vw;
     margin-top: 4vw;
     font-size: 5vw;
