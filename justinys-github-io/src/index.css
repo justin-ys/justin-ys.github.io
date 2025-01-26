@@ -17,6 +17,16 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
   width: 0;
   overflow: hidden;
+  @media (width <= 800px) {
+    margin-bottom: 4vw;
+    margin-top: 2vw;
+    font-size: 12vw;
+  }
+  @media (width > 800px) {
+    margin-bottom: 4vw;
+    margin-top: 4vw;
+    font-size: 5vw;
+  }
 }
 
 .slideContainer {
@@ -32,67 +42,6 @@ code {
   align-items: center;
   width: 100%;
   height: 100%
-}
-
-.portfolio-container {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  grid-auto-rows: auto;
-  grid-template-rows: masonry;
-  gap: 1em;
-  padding: 1em;
-}
-
-.portfolio-item {
-  border: solid 0.2em #fff;
-  border-radius: 0.25em;
-  box-shadow: -0.075em -0.075em 0.25em black;
-  text-align: left;
-  padding: 1em;
-  background-color: #b3bec4;
-}
-
-.portfolio-right {
-  width: 95%;
-  margin-left: 1em;
-}
-
-.portfolio-left {
-  width: 95%;
-  margin-left: 1em;
-}
-
-.portfolio-text-container {
-  display: flex;
-  flex-shrink: 1;
-  flex-direction: column;
-  margin: calc(1em + 0.5vw);
-  gap: 0.5em;
-}
-
-.portfolio-title {
-  font-family: 'Figtree', serif;
-  font-variation-settings: "wght" 700;
-  font-size: calc(0.5em + 1.5vw);
-  margin-bottom: 1em;
-}
-
-.portfolio-body {
-  font-family: 'Figtree', serif;
-  font-variation-settings: "wght" 400;
-  font-size: calc(0.2em + 1.1vw);
-  margin-bottom: 1em;
-}
-
-.portfolio-heading {
-  display: inline-block;
-  background-color: black;
-  color: white;
-  text-align: center;
-  font-size: calc(0.3em + 1.1vw);
-  padding: 0.5em;
-  font-family: 'Figtree', serif;
-  font-variation-settings: "wght" 700;
 }
 
 .title {

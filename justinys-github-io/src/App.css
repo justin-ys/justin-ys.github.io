@@ -19,6 +19,30 @@ body {
   min-height: 100vh;
 }
 
+.homeTitle {
+  font-family: 'Roboto';
+  @media (width <= 800px) {
+    margin-top: 5vw;
+    font-size: 10vw;
+  }
+  @media (width > 800px) {
+    margin-top: 1vw;
+    font-size: 3.5vw;
+  }
+}
+
+.homeText {
+  font-family: Roboto;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  @media (width <= 800px) {
+    font-size: 5vw;
+  }
+  @media (width > 800px) {
+    font-size: 2vw;
+  }
+}
+
 .App {
   text-align: center;
 }
@@ -26,6 +50,79 @@ body {
 .App-logo {
   height: 40vmin;
   pointer-events: none;
+}
+
+.portfolio-container {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: auto;
+  gap: 1em;
+  padding: 1em;
+}
+
+.portfolio-item {
+  border: solid 0.2em #fff;
+  border-radius: 0.25em;
+  box-shadow: -0.075em -0.075em 0.25em black;
+  text-align: left;
+  padding: 1em;
+  background-color: #b3bec4;
+}
+
+.portfolio-right {
+  width: 95%;
+  margin-left: 1em;
+}
+
+.portfolio-left {
+  width: 95%;
+  margin-left: 1em;
+}
+
+.portfolio-text-container {
+  display: flex;
+  flex-shrink: 1;
+  flex-direction: column;
+  margin: calc(1em + 0.5vw);
+  gap: 0.5em;
+}
+
+.portfolio-title {
+  font-family: 'Figtree', serif;
+  font-variation-settings: "wght" 700;
+  @media (width >= 800px) {
+    font-size: 2.2vw;
+  }
+  @media (width < 800px) {
+    font-size: 7vw;
+  }
+  margin-bottom: 1em;
+}
+
+.portfolio-body {
+  font-family: 'Figtree', serif;
+  font-variation-settings: "wght" 400;
+  @media (width >= 800px) {
+    font-size: 1.2vw;
+  }
+  @media (width < 800px) {
+    font-size: 5vw;
+  }
+  margin-bottom: 1em;
+}
+
+.portfolio-image-container {
+  @media (width <= 800px) {
+    max-width: 20em;
+  }
+  @media (width > 800px) {
+    max-width: 50em;
+  }
+  margin-top: 1em;
+  background-color: #c2ccd1;
+  border: 3px solid black;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0.2em #1d1e1f;
 }
 
 @media (prefers-reduced-motion: no-preference) {

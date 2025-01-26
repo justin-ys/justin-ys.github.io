@@ -15,8 +15,13 @@ export default function PortfolioItem(props) {
         <div className="portfolio-body">{props.body}</div>
         {props.github ? <PortfolioGithubLink github={props.github} /> : <div />}
         {props.images ?
-            <div style={{ maxWidth: '40vw', marginTop: '1em', backgroundColor: '#c2ccd1', border: '3px solid black', borderRadius: '6px', boxShadow: 'inset 0 0 0.2em #1d1e1f' }}>
-                <Splide options={{ fixedWidth: '40vw', autoplay: true }}>
+            <div className="portfolio-image-container">
+                <Splide options={{ fixedWidth: '50em', breakpoints: {
+                    800: {
+                        fixedWidth: '20em'
+                    }
+                },
+                autoplay: true }}>
                     {props.images.map((img) =>
                         <SplideSlide>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%'}}>

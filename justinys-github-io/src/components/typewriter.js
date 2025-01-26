@@ -5,15 +5,9 @@ export default function Typewriter(props) {
             const color = props.colors[idx % props.colors.length]
             const delay = props.time * idx;
             const text = word + (idx !== words.length - 1 ? ' ' : '')
-            return <div style={{display: 'inline-block'}}>
-                <pre className="typewriter"
-                        key={idx}
-                        style={{
-                            color: color,
-                            animation: `typing ${props.time}s steps(${text.length}, end) forwards`,
-                            animationDelay: delay,
-                            fontSize: props.size
-                        }}>
+            return <div style={{display: 'inline-block', marginTop: 0, marginBottom: 0}}>
+                <pre className="typewriter" style={{color: color, animation: `typing ${props.time}s steps(${text.length}, end) forwards`}}
+                        key={idx}>
                 {text}
                 </pre>
             </div>
