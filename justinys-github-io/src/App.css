@@ -32,7 +32,7 @@ body {
 }
 
 .homeText {
-  font-family: Roboto;
+  font-family: 'Roboto';
   margin-top: 1em;
   margin-bottom: 1em;
   @media (width <= 1200px) {
