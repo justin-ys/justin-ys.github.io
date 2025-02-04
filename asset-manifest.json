@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.87696570.css",
-    "main.js": "/static/js/main.bc7c38af.js",
+    "main.js": "/static/js/main.5650fce2.js",
     "static/js/453.29ab158c.chunk.js": "/static/js/453.29ab158c.chunk.js",
     "static/media/rgbike.jpg": "/static/media/rgbike.961209bca484c0cc38da.jpg",
     "static/media/vaxbot2.png": "/static/media/vaxbot2.54e512ca4630c3374ed2.png",
@@ -17,11 +17,11 @@
     "static/media/logo.svg": "/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
     "index.html": "/index.html",
     "main.87696570.css.map": "/static/css/main.87696570.css.map",
-    "main.bc7c38af.js.map": "/static/js/main.bc7c38af.js.map",
+    "main.5650fce2.js.map": "/static/js/main.5650fce2.js.map",
     "453.29ab158c.chunk.js.map": "/static/js/453.29ab158c.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.87696570.css",
-    "static/js/main.bc7c38af.js"
+    "static/js/main.5650fce2.js"
   ]
 }
