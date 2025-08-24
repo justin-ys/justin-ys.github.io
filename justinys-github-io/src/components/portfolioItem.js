@@ -21,7 +21,7 @@ export default function PortfolioItem(props) {
                         fixedWidth: '20em'
                     }
                 },
-                autoplay: true }}>
+                autoplay: true, type: 'loop', rewind: 'true'}}>
                     {props.images.map((img) =>
                         <SplideSlide>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%'}}>
