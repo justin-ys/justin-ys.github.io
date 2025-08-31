@@ -3,7 +3,11 @@
 import styles from './vimulator.module.css'
 import { useState, useRef, useEffect, useLayoutEffect } from 'react';
 
-export default function TerminalWindow() {
+interface TerminalWindowProps {
+    title?: string;
+}
+
+export default function TerminalWindow(props: TerminalWindowProps) {
     const [inputs, setInputs] = useState(['']);
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -87,35 +91,42 @@ export default function TerminalWindow() {
     };
 
     return (
-        <div
-            ref={containerRef}
-            className="w-full h-full flex flex-col overflow-y-auto min-h-0"
-            style={{ minHeight: 0, height: '100%' }}
-        >
-            {inputs.map((value, idx) => (
-                <div
-                    key={idx}
-                    ref={idx === 0 ? lineRef : undefined}
-                    className={`flex flex-row gap-2 ${styles.terminalText}`}
-                >
-                    <div className="text-right w-6">{`${idx}`}</div>
-                    <input
-                        type="text"
-                        value={value}
-                        ref={el => { inputRefs.current[idx] = el; }}
-                        onChange={e => handleInputChange(idx, e.target.value)}
-                        onKeyDown={e => handleKeyDown(e, idx)}
-                        className="block w-full font-mono text-base bg-transparent outline-none border-none mb-1"
-                    />
+        <>
+            {props.title &&
+                <div className="bg-teal-50" style={{ height: lineHeight }}>
+                    <div className={`text-center text-black font-mono ${styles.terminalText}`}>{props.title}</div>
                 </div>
-            ))}
-            {showTildes && tildeCount > 0 && (
-                <div className="flex flex-col flex-grow select-none" aria-hidden="true">
-                    {Array.from({ length: tildeCount }, (_, i) => (
-                        <div key={i} className="text-right w-6 block font-mono" style={{ 'height': lineHeight }}>~</div>
-                    ))}
-                </div>
-            )}
-        </div>
+            }
+            <div
+                ref={containerRef}
+                className="w-full h-full flex flex-col overflow-y-auto min-h-0"
+                style={{ minHeight: 0, height: '100%' }}
+            >
+                {inputs.map((value, idx) => (
+                    <div
+                        key={idx}
+                        ref={idx === 0 ? lineRef : undefined}
+                        className={`flex flex-row gap-2 ${styles.terminalText}`}
+                    >
+                        <div className="text-right w-6">{`${idx}`}</div>
+                        <input
+                            type="text"
+                            value={value}
+                            ref={el => { inputRefs.current[idx] = el; }}
+                            onChange={e => handleInputChange(idx, e.target.value)}
+                            onKeyDown={e => handleKeyDown(e, idx)}
+                            className="block w-full font-mono text-base bg-transparent outline-none border-none mb-1"
+                        />
+                    </div>
+                ))}
+                {showTildes && tildeCount > 0 && (
+                    <div className="flex flex-col flex-grow select-none" aria-hidden="true">
+                        {Array.from({ length: tildeCount }, (_, i) => (
+                            <div key={i} className="text-right w-6 block font-mono" style={{ 'height': lineHeight }}>~</div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        </>
     );
 }
