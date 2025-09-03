@@ -1,5 +1,4 @@
-import Image from "next/image";
-import TerminalWindow from "./vimulator/terminalWindow";
+import TerminalContainer from "./vimulator/terminalContainer";
 import { promises as fs } from 'fs';
 import path from "path";
 
@@ -8,7 +7,7 @@ export default async function Home() {
 
   return (
     <div className="h-screen max-h-screen">
-        <TerminalWindow title="test" prefill={data}/>
+        <TerminalContainer data={data}/>
     </div>
   );
 }

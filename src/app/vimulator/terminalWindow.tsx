@@ -2,10 +2,12 @@
 
 import styles from './vimulator.module.css'
 import { useState, useRef, useEffect, useMemo } from 'react';
+import TerminalState from './terminalState';
 
 interface TerminalWindowProps {
     title?: string;
     prefill?: string;
+    terminalState: TerminalState;
 }
 
 interface Vimput {
@@ -21,6 +23,8 @@ export default function TerminalWindow(props: TerminalWindowProps) {
     const [showTildes, setShowTildes] = useState<boolean>(true);
     const [tildeCount, setTildeCount] = useState<number>(20);
     const tildeRef = useRef<HTMLDivElement>(null);
+    const [focusedIdx, setFocusedIdx] = useState<number>(0);
+    const [caretPos, setCaretPos] = useState<number>(0);
 
     useMemo(() => {
         if (inputs.length > 20) {
@@ -82,10 +86,10 @@ export default function TerminalWindow(props: TerminalWindowProps) {
         }
     }, [])
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>, index: number) => {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement | HTMLDivElement>, index: number) => {
         if (e.key === 'Enter') {
             e.preventDefault();
-            if (inputRefs.current[index]?.selectionStart == 0 && inputRefs.current[index]?.selectionEnd == 0) {
+            if (inputs[index].content.length == 0) {
                 addLine(index, {content: ''});
             }
             else {
@@ -105,6 +109,7 @@ export default function TerminalWindow(props: TerminalWindowProps) {
             setTimeout(() => {
                 inputRefs.current[index + 1]?.focus();
             }, 0);
+            inputRefs.current[index+1]?.setSelectionRange(0, 0);
         }
         if (e.key == 'Backspace') {
             if (inputs[index].content.length == 0 && index > 0) {
@@ -169,6 +174,37 @@ export default function TerminalWindow(props: TerminalWindowProps) {
                 ref={containerRef}
                 className="w-full h-full flex flex-col overflow-y-auto min-h-0"
                 style={{ minHeight: 0, height: '100%' }}
+                tabIndex={0}
+                onKeyDown={e => {
+                    if (props.terminalState !== TerminalState.INSERT) {
+                        e.preventDefault();
+                        if (e.key === 'ArrowLeft') {
+                            if (caretPos == 0 && focusedIdx > 0) {
+                                setFocusedIdx(Math.max(0, focusedIdx - 1));
+                                setCaretPos(inputs[focusedIdx - 1].content.length);
+                            }
+                            else setCaretPos(pos => Math.max(0, pos - 1));
+                        } else if (e.key === 'ArrowRight') {
+                            if (caretPos == inputs[focusedIdx].content.length && focusedIdx < inputs.length - 1) {
+                                setFocusedIdx(focusedIdx + 1);
+                                setCaretPos(0);
+                            }
+                            else setCaretPos(pos => Math.min(inputs[focusedIdx].content.length, pos + 1));
+                        } else if (e.key === 'ArrowUp') {
+                            if (focusedIdx > 0) {
+                                const pos = caretPos;
+                                setFocusedIdx(focusedIdx - 1);
+                                setCaretPos(Math.min(pos, inputs[focusedIdx - 1].content.length));
+                            }
+                        } else if (e.key === 'ArrowDown') {
+                            if (focusedIdx < inputs.length - 1) {
+                                const pos = caretPos;
+                                setFocusedIdx(focusedIdx + 1);
+                                setCaretPos(Math.min(pos, inputs[focusedIdx + 1].content.length));
+                            }
+                        }
+                    }
+                }}
             >
                 {inputs.map((value, idx) => (
                     <div
@@ -177,14 +213,40 @@ export default function TerminalWindow(props: TerminalWindowProps) {
                         className={`flex flex-row gap-2 ${styles.terminalText}`}
                     >
                         <div className="text-right w-6">{`${idx}`}</div>
-                        <textarea
-                            rows={1}
-                            value={value.content}
-                            ref={el => { inputRefs.current[idx] = el; }}
-                            onChange={e => handleInputChange(idx, e)}
-                            onKeyDown={e => handleKeyDown(e, idx)}
-                            className={`block w-full font-mono text-base bg-transparent outline-none border-none mb-1 ${inputs[idx].center ? 'text-center' : ''}`}
-                        />
+                        {props.terminalState === TerminalState.INSERT ? (
+                            <textarea
+                                rows={1}
+                                value={value.content}
+                                ref={el => { inputRefs.current[idx] = el; }}
+                                onChange={e => handleInputChange(idx, e)}
+                                onKeyDown={e => handleKeyDown(e, idx)}
+                                className={"block w-full font-mono text-base bg-transparent outline-none border-none mb-1"}
+                            />
+                        ) : (
+                            <div
+                                className={`relative block w-full font-mono text-base bg-transparent outline-none border-none mb-1 whitespace-pre-wrap ${inputs[idx].center ? 'text-center' : ''}`}
+                                style={{ minHeight: '1.5em', cursor: 'default' }}
+                            >
+                                {(() => {
+                                    if (focusedIdx === idx) {
+                                        const chars = value.content.split("");
+                                        if (caretPos >= chars.length) {
+                                            return <div>
+                                                {chars.join("")}
+                                                <span className="bg-white text-black inline leading-none p-0 m-0">&nbsp;</span>
+                                            </div>;
+                                        }
+                                        return chars.map((c, i) =>
+                                            i === caretPos ?
+                                                <span key={i} className="bg-white text-black inline leading-none p-0 m-0">{c}</span>
+                                                : c
+                                        );
+                                    } else {
+                                        return value.content;
+                                    }
+                                })()}
+                            </div>
+                        )}
                     </div>
                 ))}
                     {showTildes && (
