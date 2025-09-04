@@ -1,7 +1,7 @@
 'use client'
 
 import styles from './vimulator.module.css'
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import TerminalState from './terminalState';
 
 interface TerminalWindowProps {
@@ -23,6 +23,7 @@ export default function TerminalWindow(props: TerminalWindowProps) {
     const [showTildes, setShowTildes] = useState<boolean>(true);
     const [tildeCount, setTildeCount] = useState<number>(20);
     const tildeRef = useRef<HTMLDivElement>(null);
+    const [currentlyEditing, setCurrentlyEditing] = useState<number>(0);
     const [focusedIdx, setFocusedIdx] = useState<number>(0);
     const [caretPos, setCaretPos] = useState<number>(0);
 
@@ -35,16 +36,49 @@ export default function TerminalWindow(props: TerminalWindowProps) {
         }
     }, [inputs.length]);
 
-    const handleInputChange = (index: number, event: React.ChangeEvent<HTMLTextAreaElement>) => {
-        const newInputs = [...inputs];
-        newInputs[index] = {...newInputs[index], content: event.target.value};
-        setInputs(newInputs);
+    const refreshInputs = (index: number) => {
         setTimeout(() => {
             if (inputRefs.current[index]) {
                 inputRefs.current[index].style.height = 'auto';
                 inputRefs.current[index].style.height = inputRefs.current[index].scrollHeight + 'px';
             }
         }, 0);
+    }
+
+    const updateCaret = useCallback(() => {
+        setFocusedIdx(currentlyEditing);
+        if (inputRefs.current[currentlyEditing]) {
+            setCaretPos(inputRefs.current[currentlyEditing]?.selectionStart)
+        }
+    }, [currentlyEditing]);
+
+    useMemo(() => {
+        inputs.forEach((_, idx) => refreshInputs(idx));
+        if (props.terminalState == TerminalState.INSERT) {
+            setTimeout(() => {
+                inputRefs.current[focusedIdx]?.focus();
+                inputRefs.current[focusedIdx]?.setSelectionRange(caretPos, caretPos);
+            });
+        }
+        else {
+            updateCaret();
+        }
+            
+    }, [props.terminalState])
+
+    useEffect(() => {
+        if (props.terminalState == TerminalState.DEFAULT) {
+            if (containerRef.current) {
+                containerRef.current.click();
+            }
+        }
+    })
+
+    const handleInputChange = (index: number, event: React.ChangeEvent<HTMLTextAreaElement>) => {
+        const newInputs = [...inputs];
+        newInputs[index] = {...newInputs[index], content: event.target.value};
+        setInputs(newInputs);
+        refreshInputs(index);
     };
 
     const addLine = (index: number, data: Vimput) => {
@@ -133,6 +167,7 @@ export default function TerminalWindow(props: TerminalWindowProps) {
             }
         }
         if (e.key == 'ArrowUp') {
+            e.preventDefault();
             if (index > 0) {
                 const pos = inputRefs.current[index]?.selectionStart;
                 if (pos != null) {
@@ -144,6 +179,7 @@ export default function TerminalWindow(props: TerminalWindowProps) {
             }
         }
         if (e.key == 'ArrowDown') {
+            e.preventDefault();
             if (index < inputs.length - 1) {
                 const pos = inputRefs.current[index]?.selectionStart;
                 if (pos != null) {
@@ -163,8 +199,12 @@ export default function TerminalWindow(props: TerminalWindowProps) {
         }, 0);
     };
 
+    const handleFocus = (e: React.FocusEvent<HTMLTextAreaElement>, idx: number) => {
+        setCurrentlyEditing(idx);
+    }
+
     return (
-        <>
+        <div>
             {props.title &&
                 <div className="bg-teal-50">
                     <div className={`text-center text-black font-mono ${styles.terminalText}`}>{props.title}</div>
@@ -179,17 +219,9 @@ export default function TerminalWindow(props: TerminalWindowProps) {
                     if (props.terminalState !== TerminalState.INSERT) {
                         e.preventDefault();
                         if (e.key === 'ArrowLeft') {
-                            if (caretPos == 0 && focusedIdx > 0) {
-                                setFocusedIdx(Math.max(0, focusedIdx - 1));
-                                setCaretPos(inputs[focusedIdx - 1].content.length);
-                            }
-                            else setCaretPos(pos => Math.max(0, pos - 1));
+                            setCaretPos(pos => Math.max(0, pos - 1));
                         } else if (e.key === 'ArrowRight') {
-                            if (caretPos == inputs[focusedIdx].content.length && focusedIdx < inputs.length - 1) {
-                                setFocusedIdx(focusedIdx + 1);
-                                setCaretPos(0);
-                            }
-                            else setCaretPos(pos => Math.min(inputs[focusedIdx].content.length, pos + 1));
+                            setCaretPos(pos => Math.min(inputs[focusedIdx].content.length, pos + 1));
                         } else if (e.key === 'ArrowUp') {
                             if (focusedIdx > 0) {
                                 const pos = caretPos;
@@ -220,7 +252,9 @@ export default function TerminalWindow(props: TerminalWindowProps) {
                                 ref={el => { inputRefs.current[idx] = el; }}
                                 onChange={e => handleInputChange(idx, e)}
                                 onKeyDown={e => handleKeyDown(e, idx)}
-                                className={"block w-full font-mono text-base bg-transparent outline-none border-none mb-1"}
+                                onFocus={e => handleFocus(e, idx)}
+                                className={`block w-full font-mono text-base bg-transparent outline-none border-none mb-1 ${inputs[idx].center ? 'text-center' : ''}`}
+                                spellCheck={false}
                             />
                         ) : (
                             <div
@@ -257,6 +291,6 @@ export default function TerminalWindow(props: TerminalWindowProps) {
                     </div>
                 )}
             </div>
-        </>
+        </div>
     );
 }
