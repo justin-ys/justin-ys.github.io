@@ -26,7 +26,7 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
 
-  assetPrefix: './'
+  assetPrefix: '/'
 };
 
 export default nextConfig;
