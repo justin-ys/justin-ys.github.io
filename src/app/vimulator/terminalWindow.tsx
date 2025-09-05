@@ -69,7 +69,7 @@ export default function TerminalWindow(props: TerminalWindowProps) {
     useEffect(() => {
         if (props.terminalState == TerminalState.DEFAULT) {
             if (containerRef.current) {
-                containerRef.current.click();
+                containerRef.current.focus();
             }
         }
     })
@@ -212,7 +212,7 @@ export default function TerminalWindow(props: TerminalWindowProps) {
             }
             <div
                 ref={containerRef}
-                className="w-full h-full flex flex-col overflow-y-auto min-h-0"
+                className="w-full h-full flex flex-col overflow-y-auto min-h-0 focus:outline-none"
                 style={{ minHeight: 0, height: '100%' }}
                 tabIndex={0}
                 onKeyDown={e => {
