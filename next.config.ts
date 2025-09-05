@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
+import { defaultConfig } from "next/dist/server/config-shared";
+const { PHASE_DEVELOPMENT_SERVER } = require('next/constants');
 
 
-const nextConfig: NextConfig = {
+const nextConfigProd: NextConfig = {
   /**
    * Enable static exports.
    *
@@ -27,6 +29,14 @@ const nextConfig: NextConfig = {
   },
 
   assetPrefix: '/'
+
 };
 
-export default nextConfig;
+module.exports = (phase: any) => {
+  if (phase === PHASE_DEVELOPMENT_SERVER) {
+    return {}
+  }
+  else {
+    return nextConfigProd;
+  }
+}
