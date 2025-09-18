@@ -253,7 +253,7 @@ export default function TerminalWindow(props: TerminalWindowProps) {
                                 onChange={e => handleInputChange(idx, e)}
                                 onKeyDown={e => handleKeyDown(e, idx)}
                                 onFocus={e => handleFocus(e, idx)}
-                                className={`block w-full font-mono text-base bg-transparent outline-none border-none mb-1 ${inputs[idx].center ? 'text-center' : ''}`}
+                                className={`block w-full font-mono text-base bg-transparent outline-none border-none resize-none mb-1 ${inputs[idx].center ? 'text-center' : ''}`}
                                 spellCheck={false}
                             />
                         ) : (
