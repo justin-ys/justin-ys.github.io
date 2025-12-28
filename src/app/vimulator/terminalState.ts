@@ -1,6 +1,7 @@
 enum TerminalState {
     DEFAULT,
-    INSERT
+    INSERT,
+    VISUAL,
 }
 
 export default TerminalState;

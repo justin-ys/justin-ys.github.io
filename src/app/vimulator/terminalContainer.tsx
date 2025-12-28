@@ -14,7 +14,8 @@ export default function TerminalContainer (props: TerminalContainerProps) {
 
     const handleKeydown = useCallback((ev: KeyboardEvent) => {
         if (ev.key == "i" && terminalState == TerminalState.DEFAULT) setTerminalState(TerminalState.INSERT);
-        if (ev.key == "Escape" && terminalState == TerminalState.INSERT) setTerminalState(TerminalState.DEFAULT);
+        if (ev.key == "v" && terminalState == TerminalState.DEFAULT) setTerminalState(TerminalState.VISUAL);
+        if (ev.key == "Escape" && terminalState != TerminalState.DEFAULT) setTerminalState(TerminalState.DEFAULT);
     }, [terminalState])
 
     useEffect(() => {
@@ -29,6 +30,7 @@ export default function TerminalContainer (props: TerminalContainerProps) {
             </div>
             <div className={`h-[5vh] sticky flex items-end font-mono ${styles.terminalText}`}>
                 {terminalState == TerminalState.INSERT ? "-- INSERT --" : ""}
+                {terminalState == TerminalState.VISUAL ? "-- VISUAL --" : ""}
             </div>
         </div>
     )
