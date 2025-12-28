@@ -26,7 +26,8 @@ export default function TerminalContainer (props: TerminalContainerProps) {
     return (
         <div className="flex-col">
             <div className="h-[95vh] max-h-[95vh] overflow-y-scroll">
-                <TerminalWindow title="File: welcome.vtxt" prefill={props.data} terminalState={terminalState}/>
+                <TerminalWindow title="File: welcome.vtxt" prefill={props.data} terminalState={terminalState}
+                    setTerminalState={setTerminalState} />
             </div>
             <div className={`h-[5vh] sticky flex items-end font-mono ${styles.terminalText}`}>
                 {terminalState == TerminalState.INSERT ? "-- INSERT --" : ""}

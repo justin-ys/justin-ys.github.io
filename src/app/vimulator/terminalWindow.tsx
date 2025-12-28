@@ -8,6 +8,7 @@ interface TerminalWindowProps {
     title?: string;
     prefill?: string;
     terminalState: TerminalState;
+    setTerminalState: any;
 }
 
 interface Vimput {
@@ -32,14 +33,20 @@ export default function TerminalWindow(props: TerminalWindowProps) {
     const [caretPos, setCaretPos] = useState<number>(0);
     const [lastCaretPos, setLastCaretPos] = useState<number>(0);
 
-    const caretSet = (newPos: any) => {
+    const caretSet = (newPos: any, line: number = focusedIdx) => {
         setLastCaretPos(caretPos);
-        setCaretPos(newPos);
+        var maxCaret = Math.max(inputs[line].content.length - 1, 0);
+        if (isNaN(newPos)) {
+            setCaretPos(pos => Math.max(0, Math.min(maxCaret, newPos(pos))));
+        }
+        else {
+            setCaretPos(pos => Math.max(0, Math.min(maxCaret, newPos)))
+        }
     }
 
     const focusedIdxSet = (newIdx: any) => {
         setLastFocusedIdx(focusedIdx);
-        setFocusedIdx(newIdx);
+        setFocusedIdx(Math.min(Math.max(0, newIdx), inputs.length));
     }
 
     // Visual mode vars
@@ -182,7 +189,7 @@ export default function TerminalWindow(props: TerminalWindowProps) {
             ...prevInputs.slice(index + 1)
         ]);
         setTimeout(() => {
-            const ref= inputRefs.current[index+1];
+            const ref = inputRefs.current[index+1];
             if (ref) {
                 ref.style.height = ref.scrollHeight + 'px';
             }
@@ -190,7 +197,7 @@ export default function TerminalWindow(props: TerminalWindowProps) {
     }
 
     const deleteLine = (index: number) => {
-        if (inputs[index].content.length == 0 && index > 0) {
+        if (index > 0) {
             setInputs(prevInputs => [
                 ...prevInputs.slice(0, index),
                 ...prevInputs.slice(index + 1)
@@ -213,6 +220,127 @@ export default function TerminalWindow(props: TerminalWindowProps) {
             )
         }
     }, [])
+
+    const getSelection = () => {
+        const lines = [];
+        for (let i=selectionStart[0]; i<=selectionEnd[0]; i++) {
+            var lineText = inputs[i].content;
+            if (selectionStart[0] == selectionEnd[0]) {
+                lineText = lineText.slice(selectionStart[1], selectionEnd[1]+1);
+            }
+            else if (i == selectionStart[0]) {
+                lineText = lineText.slice(selectionStart[1]);
+            }
+            else if (i == selectionEnd[0]) {
+                lineText = lineText.slice(0, selectionEnd[1]+1)
+            }
+            lines.push(lineText);
+        }
+        return lines.join("\n");
+    }
+
+    const deleteSelection = () => {
+        const newInputs = inputs;
+        const start = selectionStart[0];
+        const end = selectionEnd[0];
+        if (start == end) {
+            newInputs[start].content = inputs[start].content.slice(0, selectionStart[1]) + inputs[start].content.slice(selectionEnd[1]+1);
+        }
+        else {
+            newInputs[start].content = inputs[start].content.slice(0, selectionStart[1]);
+            newInputs[end].content = inputs[end].content.slice(selectionEnd[1]+1);
+        }
+        if (end > start + 1) {
+            var toRemove = end - start - 1;
+            var spliceStart = start+1;
+            if (newInputs[start].content.length == 0) {
+                spliceStart -= 1;
+                toRemove += 1;
+            }
+            if (newInputs[end].content.length == 0) {
+                toRemove += 1;
+            }
+            newInputs.splice(spliceStart, toRemove);
+        }
+        else {
+            if (newInputs[start].content.length == 0) {
+                newInputs.splice(start, 1);
+            }
+        }
+        setInputs(newInputs);
+    }
+
+    const handleYank = async () => {
+        const text = getSelection();
+        focusedIdxSet(selectionStart[0]);
+        caretSet(selectionStart[1], selectionStart[0]);
+        try {
+            await navigator.clipboard.writeText(text);
+        }
+        catch (err) {
+            console.log(err);
+        }
+    }
+
+    const handleCut = async () => {
+        const text = getSelection();
+        deleteSelection();
+        setCaretPos(selectionStart[1]);
+        setFocusedIdx(selectionStart[0]);
+        try {
+            await navigator.clipboard.writeText(text);
+        }
+        catch (err) {
+            console.log(err);
+        }
+    }
+
+    const handlePaste = async () => {
+        try {
+            const text = await navigator.clipboard.readText();
+            if (text.length == 0) return;
+            const lines = text.split("\n");
+            const beforePaste = inputs[focusedIdx].content.slice(0, caretPos+1);
+            const afterPaste = inputs[focusedIdx].content.slice(caretPos+1, inputs[focusedIdx].content.length);
+            deleteLine(focusedIdx);
+            var cIdx = focusedIdx - 1;
+            if (lines.length == 1) {
+                addLine(cIdx, {'content': beforePaste + lines[0] + afterPaste});
+            }
+            else {
+                addLine(cIdx, {'content': beforePaste + lines[0]});
+                cIdx++;
+                for (let i=1; i<lines.length-1; i++) {
+                    addLine(cIdx, {'content': lines[i]});
+                    cIdx++;
+                }
+                addLine(cIdx, {'content': lines[lines.length - 1] + afterPaste})
+            }
+        }
+        catch (err) {
+            console.log(err);
+        }
+    }
+
+    const handleKeydown = useCallback((ev: KeyboardEvent) => {
+        if (ev.key == "y" && props.terminalState == TerminalState.VISUAL) {
+            handleYank();
+            props.setTerminalState(TerminalState.DEFAULT);
+        }
+        if (ev.key == 'c' && props.terminalState == TerminalState.VISUAL) {
+            handleCut();
+            props.setTerminalState(TerminalState.DEFAULT);
+        }
+        if (ev.key == 'p' && props.terminalState == TerminalState.DEFAULT) {
+            handlePaste();
+        }
+    }, [props.terminalState, selectionStart, selectionEnd, focusedIdx, caretPos, inputs])
+
+    useEffect(() => {
+        document.addEventListener('keydown', handleKeydown);
+        return () => document.removeEventListener('keydown', handleKeydown)
+    }, [props.terminalState, selectionStart, selectionEnd, focusedIdx, caretPos, inputs])
+
 
     const insertHandleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement | HTMLDivElement>, index: number) => {
         if (e.key === 'Enter') {
@@ -298,26 +426,20 @@ export default function TerminalWindow(props: TerminalWindowProps) {
             e.preventDefault();
             if (e.key === 'ArrowLeft') {
                 setLastFocusedIdx(focusedIdx);
-                caretSet(pos => Math.max(0, pos - 1));
+                caretSet(pos => pos-1);
             }
             else if (e.key == 'ArrowRight') {
-                var maxCaret = inputs[focusedIdx].content.length - 1;
-                if (props.terminalState == TerminalState.VISUAL) {
-                    maxCaret++;
-                }
                 setLastFocusedIdx(focusedIdx);
-                caretSet(pos => Math.min(maxCaret, pos + 1));
+                caretSet(pos => pos+1);
             } else if (e.key === 'ArrowUp') {
                 if (focusedIdx > 0) {
-                    const pos = caretPos;
                     focusedIdxSet(focusedIdx - 1);
-                    caretSet(Math.min(pos, inputs[focusedIdx - 1].content.length));
+                    caretSet(pos => pos, focusedIdx - 1);
                 }
             } else if (e.key === 'ArrowDown') {
                 if (focusedIdx < inputs.length - 1) {
-                    const pos = caretPos;
                     focusedIdxSet(focusedIdx + 1);
-                    caretSet(Math.min(pos, inputs[focusedIdx + 1].content.length));
+                    caretSet(pos => pos, focusedIdx + 1);
                 }
             }
         }
