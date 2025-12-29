@@ -25,7 +25,7 @@ export default function TerminalContainer (props: TerminalContainerProps) {
 
     return (
         <div className="flex-col">
-            <div className="h-[95vh] max-h-[95vh] overflow-y-scroll">
+            <div className="h-[95vh] max-h-[95vh] overflow-y-scroll bg-black">
                 <TerminalWindow title="File: welcome.vtxt" prefill={props.data} terminalState={terminalState}
                     setTerminalState={setTerminalState} />
             </div>

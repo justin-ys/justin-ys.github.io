@@ -404,13 +404,13 @@ export default function TerminalWindow({ title, prefill, terminalState, setTermi
     return (
         <div>
             {title &&
-                <div className="bg-teal-50">
+                <div className="bg-teal-500">
                     <div className={`text-center text-black font-mono ${styles.terminalText}`}>{title}</div>
                 </div>
             }
             <div
                 ref={containerRef}
-                className="w-full h-full flex flex-col overflow-y-auto min-h-0 focus:outline-none"
+                className="w-full h-full flex flex-col overflow-y-auto min-h-0 focus:outline-none text-white"
                 style={{ minHeight: 0, height: '100%' }}
                 tabIndex={0}
                 onKeyDown={containerHandleKeyDown}

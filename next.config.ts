@@ -1,6 +1,5 @@
 import type { NextConfig } from "next";
-import { defaultConfig } from "next/dist/server/config-shared";
-const { PHASE_DEVELOPMENT_SERVER } = require('next/constants');
+import { PHASE_DEVELOPMENT_SERVER } from 'next/constants';
 
 
 const nextConfigProd: NextConfig = {
@@ -32,7 +31,7 @@ const nextConfigProd: NextConfig = {
 
 };
 
-module.exports = (phase: any) => {
+module.exports = (phase: string) => {
   if (phase === PHASE_DEVELOPMENT_SERVER) {
     return {}
   }
