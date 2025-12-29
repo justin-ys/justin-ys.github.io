@@ -24,12 +24,12 @@ export default function TerminalContainer (props: TerminalContainerProps) {
     }, [terminalState, handleKeydown])
 
     return (
-        <div className="flex-col">
-            <div className="h-[95vh] max-h-[95vh] overflow-y-scroll bg-black">
+        <div className="flex-col bg-black">
+            <div className="h-[95vh] max-h-[95vh] overflow-y-scroll">
                 <TerminalWindow title="File: welcome.vtxt" prefill={props.data} terminalState={terminalState}
                     setTerminalState={setTerminalState} />
             </div>
-            <div className={`h-[5vh] sticky flex items-end font-mono ${styles.terminalText}`}>
+            <div className={`h-[5vh] sticky flex items-end font-mono text-white ${styles.terminalText}`}>
                 {terminalState == TerminalState.INSERT ? "-- INSERT --" : ""}
                 {terminalState == TerminalState.VISUAL ? "-- VISUAL --" : ""}
             </div>
