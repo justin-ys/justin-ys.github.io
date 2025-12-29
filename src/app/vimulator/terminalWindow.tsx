@@ -8,7 +8,7 @@ interface TerminalWindowProps {
     title?: string;
     prefill?: string;
     terminalState: TerminalState;
-    setTerminalState: any;
+    setTerminalState: (arg0: TerminalState) => void;
 }
 
 interface Vimput {
@@ -16,7 +16,7 @@ interface Vimput {
     center?: boolean;
 }
 
-export default function TerminalWindow(props: TerminalWindowProps) {
+export default function TerminalWindow({ title, prefill, terminalState, setTerminalState }: TerminalWindowProps) {
     const [inputs, setInputs] = useState<Vimput[]>([{content: ''}]);
     const inputRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -25,29 +25,32 @@ export default function TerminalWindow(props: TerminalWindowProps) {
     const [tildeCount, setTildeCount] = useState<number>(20);
     const tildeRef = useRef<HTMLDivElement>(null);
     const [currentlyEditing, setCurrentlyEditing] = useState<number>(0);
-    const [focusedIdx, setFocusedIdx] = useState<number>(0);
-    const [lastFocusedIdx, setLastFocusedIdx] = useState<number>(0);
-    const [lastState, setLastState] = useState<TerminalState>(TerminalState.DEFAULT);
+    const lastState = useRef<TerminalState>(TerminalState.DEFAULT);
+    const curState = useRef<TerminalState>(terminalState);
 
     // Default mode vars
     const [caretPos, setCaretPos] = useState<number>(0);
-    const [lastCaretPos, setLastCaretPos] = useState<number>(0);
+    const lastCaretPos = useRef<number>(0);
+    const curCaretPos = useRef<number>(0);
+    const [focusedIdx, setFocusedIdx] = useState<number>(0);
+    const lastFocusedIdx = useRef<number>(0);
+    const curFocusedIdx = useRef<number>(0);
 
-    const caretSet = (newPos: any, line: number = focusedIdx) => {
-        setLastCaretPos(caretPos);
-        var maxCaret = Math.max(inputs[line].content.length - 1, 0);
-        if (isNaN(newPos)) {
-            setCaretPos(pos => Math.max(0, Math.min(maxCaret, newPos(pos))));
+    const caretSet = useCallback((newPos: number | ((arg0: number) => number), line: number = focusedIdx) => {
+        lastCaretPos.current = caretPos;
+        const maxCaret = Math.max(inputs[line].content.length - 1, 0);
+        if (typeof newPos == 'number') {
+            setCaretPos(Math.max(0, Math.min(maxCaret, newPos)));
         }
         else {
-            setCaretPos(pos => Math.max(0, Math.min(maxCaret, newPos)))
+            setCaretPos(pos => Math.max(0, Math.min(maxCaret, newPos(pos))));
         }
-    }
+    }, [inputs, caretPos, focusedIdx]);
 
-    const focusedIdxSet = (newIdx: any) => {
-        setLastFocusedIdx(focusedIdx);
+    const focusedIdxSet = useCallback((newIdx: number) => {
+        lastFocusedIdx.current = focusedIdx;
         setFocusedIdx(Math.min(Math.max(0, newIdx), inputs.length));
-    }
+    }, [inputs, focusedIdx]);
 
     // Visual mode vars
     const [selectionStart, setSelectionStart] = useState<number[]>([0, 0]);
@@ -62,48 +65,43 @@ export default function TerminalWindow(props: TerminalWindowProps) {
         }
     }, [inputs.length]);
 
-    const refreshInputs = (index: number) => {
-        setTimeout(() => {
-            if (inputRefs.current[index]) {
-                inputRefs.current[index].style.height = 'auto';
-                inputRefs.current[index].style.height = inputRefs.current[index].scrollHeight + 'px';
-            }
-        }, 0);
-    }
-
-    const updateCaret = (ls: TerminalState) => {
-        if (ls == TerminalState.INSERT) {
-            focusedIdxSet(currentlyEditing);
-            if (inputRefs.current[currentlyEditing]) {
-                caretSet(inputRefs.current[currentlyEditing]?.selectionStart)
-                setSelectionStart([currentlyEditing, inputRefs.current[currentlyEditing]?.selectionStart]);
-                setSelectionEnd([currentlyEditing, inputRefs.current[currentlyEditing]?.selectionStart]);
-            }
-        }
-        else if (ls == TerminalState.DEFAULT) {
-            setSelectionStart([focusedIdx, caretPos]);
-            setSelectionEnd([focusedIdx, caretPos]);
-        }
-        setLastCaretPos(caretPos);
-        setLastFocusedIdx(focusedIdx);
-    }
-
     useMemo(() => {
-        inputs.forEach((_, idx) => refreshInputs(idx));
-        if (props.terminalState == TerminalState.INSERT && (lastState == TerminalState.DEFAULT || lastState == TerminalState.VISUAL)) {
-            setTimeout(() => {
-                inputRefs.current[focusedIdx]?.focus();
-                inputRefs.current[focusedIdx]?.setSelectionRange(caretPos, caretPos);
-            });
+        const updateCaret = (ls: TerminalState) => {
+            if (ls == TerminalState.INSERT) {
+                focusedIdxSet(currentlyEditing);
+                if (inputRefs.current[currentlyEditing]) {
+                    caretSet(inputRefs.current[currentlyEditing]?.selectionStart)
+                    setSelectionStart([currentlyEditing, inputRefs.current[currentlyEditing]?.selectionStart]);
+                    setSelectionEnd([currentlyEditing, inputRefs.current[currentlyEditing]?.selectionStart]);
+                }
+            }
+            else if (ls == TerminalState.DEFAULT) {
+                setSelectionStart([focusedIdx, caretPos]);
+                setSelectionEnd([focusedIdx, caretPos]);
+            }
+            lastCaretPos.current = caretPos;
+            lastFocusedIdx.current = focusedIdx;
+            curCaretPos.current = caretPos;
+            curFocusedIdx.current = focusedIdx;
+        };
+
+        if (curState.current != terminalState) {
+            if (terminalState == TerminalState.INSERT && (curState.current == TerminalState.DEFAULT || curState.current == TerminalState.VISUAL)) {
+                setTimeout(() => {
+                    inputRefs.current[focusedIdx]?.focus();
+                    inputRefs.current[focusedIdx]?.setSelectionRange(caretPos, caretPos);
+                });
+            }
+            else {
+                updateCaret(curState.current);
+            }
+            lastState.current = curState.current;
+            curState.current = terminalState;
         }
-        else {
-            updateCaret(lastState);
-        }
-        setLastState(props.terminalState);
-    }, [props.terminalState])
+    }, [terminalState, caretPos, focusedIdx, currentlyEditing, focusedIdxSet, caretSet])
 
     useEffect(() => {
-        if (props.terminalState == TerminalState.DEFAULT) {
+        if (terminalState == TerminalState.DEFAULT) {
             if (containerRef.current) {
                 containerRef.current.focus();
             }
@@ -111,75 +109,34 @@ export default function TerminalWindow(props: TerminalWindowProps) {
     })
 
     useMemo(() => {
-        if (props.terminalState == TerminalState.VISUAL) {
-            if (focusedIdx == selectionStart[0]) {
-                if (lastFocusedIdx == selectionStart[0]) {
-                    if (selectionEnd[0] > focusedIdx) {
-                        setSelectionStart([focusedIdx, caretPos]);
-                    }
-                    else if (lastCaretPos == selectionEnd[1] && caretPos > selectionStart[1]) {
-                        setSelectionEnd([focusedIdx, caretPos]);
-                    }
-                    else {
-                        setSelectionStart([focusedIdx, caretPos]);
-                    }
-                }
-                else {
-                    if (selectionEnd[0] > focusedIdx && lastFocusedIdx < selectionEnd[0]) {
-                        setSelectionStart([focusedIdx, caretPos]);
-                    }
-                    else {
-                        if (caretPos >= selectionStart[1]) {
-                            setSelectionEnd([focusedIdx, caretPos]);
-                        }
-                        else {
-                            setSelectionEnd(selectionStart);
-                            setSelectionStart([focusedIdx, caretPos]);
-                        }
-                    }
-                }
-            }
-            else if (focusedIdx < selectionStart[0]) {
-                if (lastFocusedIdx == selectionEnd[0] && lastCaretPos == selectionEnd[1]) {
-                    setSelectionEnd(selectionStart);
-                }
-                setSelectionStart([focusedIdx, caretPos]);
-            }
-            else {
-                if (focusedIdx < selectionEnd[0]) {
-                    if (lastFocusedIdx == selectionStart[0]) {
-                        setSelectionStart([focusedIdx, caretPos]);
-                    }
-                    else {
-                        setSelectionEnd([focusedIdx, caretPos]);
-                    }
-                }
-                else if (focusedIdx > selectionEnd[0]) {
+        if (terminalState == TerminalState.VISUAL && (curCaretPos.current != caretPos || curFocusedIdx.current != focusedIdx)) {
+            if (lastCaretPos.current == selectionStart[1] && lastFocusedIdx.current == selectionStart[0]) {
+                if (focusedIdx > selectionEnd[0] || (focusedIdx == selectionEnd[0] && caretPos >= selectionEnd[1])) {
+                    setSelectionStart(selectionEnd);
                     setSelectionEnd([focusedIdx, caretPos]);
                 }
                 else {
-                    if (lastFocusedIdx == selectionStart[0] && lastCaretPos == selectionStart[1]) {
-                        if (caretPos <= selectionEnd[1]) {
-                            setSelectionStart([focusedIdx, caretPos]);
-                        }
-                        else {
-                            setSelectionStart(selectionEnd);
-                            setSelectionEnd([focusedIdx, caretPos]);
-                        }
-                    }
-                    else {
-                        setSelectionEnd([focusedIdx, caretPos]);
-                    }
+                    setSelectionStart([focusedIdx, caretPos]);
                 }
             }
+            else {
+                if (focusedIdx < selectionStart[0] || (focusedIdx == selectionStart[0] && caretPos <= selectionStart[1])) {
+                    setSelectionEnd(selectionStart);
+                    setSelectionStart([focusedIdx, caretPos]);
+                }
+                else {
+                    setSelectionEnd([focusedIdx, caretPos]);
+                }
+            }
+            curCaretPos.current = caretPos;
+            curFocusedIdx.current = focusedIdx;
         }
-    }, [caretPos, focusedIdx])
+    }, [caretPos, focusedIdx, terminalState, selectionEnd, selectionStart])
 
     const handleInputChange = (index: number, event: React.ChangeEvent<HTMLTextAreaElement>) => {
         const newInputs = [...inputs];
         newInputs[index] = {...newInputs[index], content: event.target.value};
         setInputs(newInputs);
-        refreshInputs(index);
     };
 
     const addLine = (index: number, data: Vimput) => {
@@ -206,10 +163,10 @@ export default function TerminalWindow(props: TerminalWindowProps) {
     }
 
     useEffect(() => {
-        if (props.prefill) {
+        if (prefill) {
             setInputs([]);
-            const lines = props.prefill.split("\n");
-            const curLength = inputs.length;
+            const lines = prefill.split("\n");
+            const curLength = 0;
             lines.forEach((line, idx) => {
                 if (line.startsWith('[center]')) {
                     addLine(curLength+idx, {content: line.slice(8), center: true})
@@ -219,12 +176,12 @@ export default function TerminalWindow(props: TerminalWindowProps) {
             }
             )
         }
-    }, [])
+    }, [prefill])
 
-    const getSelection = () => {
+    const getSelection = useCallback(() => {
         const lines = [];
         for (let i=selectionStart[0]; i<=selectionEnd[0]; i++) {
-            var lineText = inputs[i].content;
+            let lineText = inputs[i].content;
             if (selectionStart[0] == selectionEnd[0]) {
                 lineText = lineText.slice(selectionStart[1], selectionEnd[1]+1);
             }
@@ -237,9 +194,9 @@ export default function TerminalWindow(props: TerminalWindowProps) {
             lines.push(lineText);
         }
         return lines.join("\n");
-    }
+    }, [inputs, selectionStart, selectionEnd]);
 
-    const deleteSelection = () => {
+    const deleteSelection = useCallback(() => {
         const newInputs = inputs;
         const start = selectionStart[0];
         const end = selectionEnd[0];
@@ -251,8 +208,8 @@ export default function TerminalWindow(props: TerminalWindowProps) {
             newInputs[end].content = inputs[end].content.slice(selectionEnd[1]+1);
         }
         if (end > start + 1) {
-            var toRemove = end - start - 1;
-            var spliceStart = start+1;
+            let toRemove = end - start - 1;
+            let spliceStart = start+1;
             if (newInputs[start].content.length == 0) {
                 spliceStart -= 1;
                 toRemove += 1;
@@ -268,78 +225,79 @@ export default function TerminalWindow(props: TerminalWindowProps) {
             }
         }
         setInputs(newInputs);
-    }
-
-    const handleYank = async () => {
-        const text = getSelection();
-        focusedIdxSet(selectionStart[0]);
-        caretSet(selectionStart[1], selectionStart[0]);
-        try {
-            await navigator.clipboard.writeText(text);
-        }
-        catch (err) {
-            console.log(err);
-        }
-    }
-
-    const handleCut = async () => {
-        const text = getSelection();
-        deleteSelection();
-        setCaretPos(selectionStart[1]);
-        setFocusedIdx(selectionStart[0]);
-        try {
-            await navigator.clipboard.writeText(text);
-        }
-        catch (err) {
-            console.log(err);
-        }
-    }
-
-    const handlePaste = async () => {
-        try {
-            const text = await navigator.clipboard.readText();
-            if (text.length == 0) return;
-            const lines = text.split("\n");
-            const beforePaste = inputs[focusedIdx].content.slice(0, caretPos+1);
-            const afterPaste = inputs[focusedIdx].content.slice(caretPos+1, inputs[focusedIdx].content.length);
-            deleteLine(focusedIdx);
-            var cIdx = focusedIdx - 1;
-            if (lines.length == 1) {
-                addLine(cIdx, {'content': beforePaste + lines[0] + afterPaste});
-            }
-            else {
-                addLine(cIdx, {'content': beforePaste + lines[0]});
-                cIdx++;
-                for (let i=1; i<lines.length-1; i++) {
-                    addLine(cIdx, {'content': lines[i]});
-                    cIdx++;
-                }
-                addLine(cIdx, {'content': lines[lines.length - 1] + afterPaste})
-            }
-        }
-        catch (err) {
-            console.log(err);
-        }
-    }
+    }, [inputs, selectionStart, selectionEnd]);
 
     const handleKeydown = useCallback((ev: KeyboardEvent) => {
-        if (ev.key == "y" && props.terminalState == TerminalState.VISUAL) {
+        
+        const handleYank = async () => {
+            const text = getSelection();
+            focusedIdxSet(selectionStart[0]);
+            caretSet(selectionStart[1], selectionStart[0]);
+            try {
+                await navigator.clipboard.writeText(text);
+            }
+            catch (err) {
+                console.log(err);
+            }
+        }
+    
+        const handleCut = async () => {
+            const text = getSelection();
+            deleteSelection();
+            caretSet(selectionStart[1]);
+            focusedIdxSet(selectionStart[0]);
+            try {
+                await navigator.clipboard.writeText(text);
+            }
+            catch (err) {
+                console.log(err);
+            }
+        }
+    
+        const handlePaste = async () => {
+            try {
+                const text = await navigator.clipboard.readText();
+                if (text.length == 0) return;
+                const lines = text.split("\n");
+                const beforePaste = inputs[focusedIdx].content.slice(0, caretPos+1);
+                const afterPaste = inputs[focusedIdx].content.slice(caretPos+1, inputs[focusedIdx].content.length);
+                deleteLine(focusedIdx);
+                let cIdx = focusedIdx - 1;
+                if (lines.length == 1) {
+                    addLine(cIdx, {'content': beforePaste + lines[0] + afterPaste});
+                }
+                else {
+                    addLine(cIdx, {'content': beforePaste + lines[0]});
+                    cIdx++;
+                    for (let i=1; i<lines.length-1; i++) {
+                        addLine(cIdx, {'content': lines[i]});
+                        cIdx++;
+                    }
+                    addLine(cIdx, {'content': lines[lines.length - 1] + afterPaste})
+                }
+            }
+            catch (err) {
+                console.log(err);
+            }
+        }
+
+        if (ev.key == "y" && terminalState == TerminalState.VISUAL) {
             handleYank();
-            props.setTerminalState(TerminalState.DEFAULT);
+            setTerminalState(TerminalState.DEFAULT);
         }
-        if (ev.key == 'c' && props.terminalState == TerminalState.VISUAL) {
+        if (ev.key == 'c' && terminalState == TerminalState.VISUAL) {
             handleCut();
-            props.setTerminalState(TerminalState.DEFAULT);
+            setTerminalState(TerminalState.DEFAULT);
         }
-        if (ev.key == 'p' && props.terminalState == TerminalState.DEFAULT) {
+        if (ev.key == 'p' && terminalState == TerminalState.DEFAULT) {
             handlePaste();
         }
-    }, [props.terminalState, selectionStart, selectionEnd, focusedIdx, caretPos, inputs])
+    }, [terminalState, setTerminalState, caretPos, caretSet, deleteSelection, getSelection, inputs, selectionStart, focusedIdx, focusedIdxSet])
 
     useEffect(() => {
         document.addEventListener('keydown', handleKeydown);
         return () => document.removeEventListener('keydown', handleKeydown)
-    }, [props.terminalState, selectionStart, selectionEnd, focusedIdx, caretPos, inputs])
+    }, [terminalState, selectionStart, selectionEnd, focusedIdx, caretPos, inputs, handleKeydown])
 
 
     const insertHandleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement | HTMLDivElement>, index: number) => {
@@ -412,34 +370,27 @@ export default function TerminalWindow(props: TerminalWindowProps) {
                 }
             }
         }
-
-        setTimeout(() => {
-            if (inputRefs.current[index]) {
-                inputRefs.current[index].style.height = 'auto';
-                inputRefs.current[index].style.height = inputRefs.current[index].scrollHeight + 'px';
-            }
-        }, 0);
     };
 
     const containerHandleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-        if (props.terminalState !== TerminalState.INSERT) {
+        if (terminalState !== TerminalState.INSERT) {
             e.preventDefault();
             if (e.key === 'ArrowLeft') {
-                setLastFocusedIdx(focusedIdx);
-                caretSet(pos => pos-1);
+                lastFocusedIdx.current = focusedIdx;
+                caretSet((pos: number) => pos-1);
             }
             else if (e.key == 'ArrowRight') {
-                setLastFocusedIdx(focusedIdx);
-                caretSet(pos => pos+1);
+                lastFocusedIdx.current = focusedIdx;
+                caretSet((pos: number)  => pos+1);
             } else if (e.key === 'ArrowUp') {
                 if (focusedIdx > 0) {
                     focusedIdxSet(focusedIdx - 1);
-                    caretSet(pos => pos, focusedIdx - 1);
+                    caretSet((pos: number)  => pos, focusedIdx - 1);
                 }
             } else if (e.key === 'ArrowDown') {
                 if (focusedIdx < inputs.length - 1) {
                     focusedIdxSet(focusedIdx + 1);
-                    caretSet(pos => pos, focusedIdx + 1);
+                    caretSet((pos: number)  => pos, focusedIdx + 1);
                 }
             }
         }
@@ -452,9 +403,9 @@ export default function TerminalWindow(props: TerminalWindowProps) {
 
     return (
         <div>
-            {props.title &&
+            {title &&
                 <div className="bg-teal-50">
-                    <div className={`text-center text-black font-mono ${styles.terminalText}`}>{props.title}</div>
+                    <div className={`text-center text-black font-mono ${styles.terminalText}`}>{title}</div>
                 </div>
             }
             <div
@@ -471,11 +422,17 @@ export default function TerminalWindow(props: TerminalWindowProps) {
                         className={`flex flex-row gap-2 ${styles.terminalText}`}
                     >
                         <div className="text-right w-6">{`${idx}`}</div>
-                        {props.terminalState === TerminalState.INSERT ? (
+                        {terminalState === TerminalState.INSERT ? (
                             <textarea
                                 rows={1}
                                 value={value.content}
-                                ref={el => { inputRefs.current[idx] = el; }}
+                                ref={el => { 
+                                    inputRefs.current[idx] = el;
+                                    if (el) {
+                                        el.style.height = 'auto';
+                                        el.style.height = el.scrollHeight + 'px';
+                                    }
+                                }}
                                 onChange={e => handleInputChange(idx, e)}
                                 onKeyDown={e => insertHandleKeyDown(e, idx)}
                                 onFocus={e => handleFocus(e, idx)}
@@ -488,12 +445,12 @@ export default function TerminalWindow(props: TerminalWindowProps) {
                                 style={{ minHeight: '1.5em', cursor: 'default' }}
                             >
                                 {(() => {
-                                    if (focusedIdx === idx || props.terminalState == TerminalState.VISUAL && (focusedIdx >= selectionStart[0] && focusedIdx <= selectionEnd[0])) {
-                                        var chars = value.content.split("");
+                                    if (focusedIdx === idx || terminalState == TerminalState.VISUAL && (focusedIdx >= selectionStart[0] && focusedIdx <= selectionEnd[0])) {
+                                        let chars = value.content.split("");
                                         if (chars.length == 0) {
                                             chars = [" "]; // space character for when the line is empty for cursor/visual blocks
                                         }
-                                        if (props.terminalState == TerminalState.VISUAL && caretPos == chars.length && focusedIdx == idx) {
+                                        if (terminalState == TerminalState.VISUAL && caretPos == chars.length && focusedIdx == idx) {
                                             chars.push(" ");
                                         }
                                         return chars.map((c, i) => {
@@ -501,7 +458,7 @@ export default function TerminalWindow(props: TerminalWindowProps) {
                                                 return <span key={i} className="bg-white text-black inline leading-none p-0 m-0">{c}</span>
                                             }
                                             // this needs to be refactored :(
-                                            else if (props.terminalState == TerminalState.VISUAL && ((idx > selectionStart[0] && idx < selectionEnd[0]) || (idx == selectionStart[0] && selectionStart[0] == selectionEnd[0] && i >= selectionStart[1] && i <= selectionEnd[1]) || ((idx == selectionStart[0] && idx < selectionEnd[0] && i >= selectionStart[1]) || (idx == selectionEnd[0] && idx > selectionStart[0] && i <= selectionEnd[1])))) {
+                                            else if (terminalState == TerminalState.VISUAL && ((idx > selectionStart[0] && idx < selectionEnd[0]) || (idx == selectionStart[0] && selectionStart[0] == selectionEnd[0] && i >= selectionStart[1] && i <= selectionEnd[1]) || ((idx == selectionStart[0] && idx < selectionEnd[0] && i >= selectionStart[1]) || (idx == selectionEnd[0] && idx > selectionStart[0] && i <= selectionEnd[1])))) {
                                                 return <span key={i} className="bg-gray-400 text-black inline leading-none p-0 m-0">{c}</span>
                                             }
                                             else return c;

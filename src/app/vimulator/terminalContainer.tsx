@@ -21,7 +21,7 @@ export default function TerminalContainer (props: TerminalContainerProps) {
     useEffect(() => {
         document.addEventListener('keydown', handleKeydown);
         return () => document.removeEventListener('keydown', handleKeydown)
-    }, [terminalState])
+    }, [terminalState, handleKeydown])
 
     return (
         <div className="flex-col">
