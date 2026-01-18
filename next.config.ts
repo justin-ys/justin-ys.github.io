@@ -27,13 +27,35 @@ const nextConfigProd: NextConfig = {
     unoptimized: true,
   },
 
-  assetPrefix: '/'
+  assetPrefix: '/',
 
+  turbopack: {
+    rules: {
+      '*.vtxt': {
+        loaders: ['raw-loader'],
+        as: '*.js',
+      },
+    },
+    resolveExtensions: ['.vtxt', '.tsx', '.ts', '.jsx', '.js', '.mjs', '.json'],
+  },
+
+};
+
+const nextConfigDev: NextConfig = {
+  turbopack: {
+    rules: {
+      '*.vtxt': {
+        loaders: ['raw-loader'],
+        as: '*.js',
+      },
+    },
+    resolveExtensions: ['.vtxt', '.tsx', '.ts', '.jsx', '.js', '.mjs', '.json'],
+  },
 };
 
 module.exports = (phase: string) => {
   if (phase === PHASE_DEVELOPMENT_SERVER) {
-    return {}
+    return nextConfigDev;
   }
   else {
     return nextConfigProd;

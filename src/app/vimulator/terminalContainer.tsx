@@ -2,14 +2,14 @@
 
 import TerminalWindow from "./terminalWindow";
 import TerminalState from "./terminalState"
-import { useCallback, useEffect, useState } from "react";
 import styles from './vimulator.module.css'
+import resolveFromName from "../assets/asset_resolver";
 
-interface TerminalContainerProps {
-    data?: string;
-}
+import { useCallback, useEffect, useState } from "react";
 
-export default function TerminalContainer (props: TerminalContainerProps) {
+export default function TerminalContainer () {
+    const [data, setData] = useState(resolveFromName('welcome'));
+
     const [terminalState, setTerminalState] = useState(TerminalState.DEFAULT);
 
     const handleKeydown = useCallback((ev: KeyboardEvent) => {
@@ -26,7 +26,7 @@ export default function TerminalContainer (props: TerminalContainerProps) {
     return (
         <div className="flex-col bg-black">
             <div className="h-[95vh] max-h-[95vh] overflow-y-scroll">
-                <TerminalWindow title="File: welcome.vtxt" prefill={props.data} terminalState={terminalState}
+                <TerminalWindow title="File: welcome.vtxt" prefill={data} terminalState={terminalState}
                     setTerminalState={setTerminalState} />
             </div>
             <div className={`h-[5vh] sticky flex items-end font-mono text-white ${styles.terminalText}`}>
