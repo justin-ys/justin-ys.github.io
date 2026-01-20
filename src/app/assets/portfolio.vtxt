@@ -1,0 +1,26 @@
+[center]Portfolio: Things I've Done
+
+[center]===Retrograde===
+Retrograde is a video game made in C++ entirely from scratch, including the game engine it's built in. The demo features ~15 different rooms, a handmade chiptune soundtrack, Windows and Linux support, and even Discord RPC integration. Graphics are handled with ncurses (although a modular design means it's easy to port to any graphics library), and audio with the versatile minaudio library.
+
+See it here: https://jm-5.itch.io/retrograde
+Source code: https://github.com/justin-ys/Spylike
+
+[center]===WattPath===
+WattPath is a degree planning tool for university students, made in React Native. When completed, it will have full support for any mobile device and web. It is now nearly UI-complete, with work currently being done on automatically gathering degree requirements.
+
+See the source code here: https://github.com/justin-ys/WattPath
+
+[center]===justin-ys.github.io===
+The website you're currently on! Built in React with Next.js, it implements a minimal text editor based on the Vim editor, and also serves as my personal page. Some blog posts will be arriving soon!
+
+
+[center]===VaxBot===
+A Discord assistant for finding nearby COVID-19 vaccination appointments, released during Canada's deployment of 2nd/3rd shots. Used the Python Discord.py library, and several backends to gather appointment data, including the Find Your Immunization appointment database whivch I also worked on. VaxBot helped ~400 unique users per day find appointments for several weeks.
+
+See the source code and screenshots here: https://github.com/Vaccine-Hunters-Canada/VaxFinder-Discord
+
+[center]===LighType===
+A typing training tool made in Python with PyQt5. Supports many custom corpi, allows for several different timing options, and graphs your typing speed in real time.
+
+Check it out here: https://github.com/justin-ys/lighttype

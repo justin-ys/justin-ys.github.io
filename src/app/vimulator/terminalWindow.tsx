@@ -1,11 +1,10 @@
 'use client'
 
 import styles from './vimulator.module.css'
-import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import TerminalState from './terminalState';
 
 interface TerminalWindowProps {
-    title?: string;
     prefill?: string;
     terminalState: TerminalState;
     setTerminalState: (arg0: TerminalState) => void;
@@ -16,7 +15,7 @@ interface Vimput {
     center?: boolean;
 }
 
-export default function TerminalWindow({ title, prefill, terminalState, setTerminalState }: TerminalWindowProps) {
+export default function TerminalWindow({ prefill, terminalState, setTerminalState }: TerminalWindowProps) {
     const [inputs, setInputs] = useState<Vimput[]>([{content: ''}]);
     const inputRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -400,14 +399,23 @@ export default function TerminalWindow({ title, prefill, terminalState, setTermi
         setCurrentlyEditing(idx);
     }
 
+    const findUrls = (text: string): Array<{start: number, end: number}> => {
+        const urls: Array<{start: number, end: number}> = [];
+        const urlRegex = /https:\/\/[^\s]+/g;
+        let match;
+        while ((match = urlRegex.exec(text)) !== null) {
+            urls.push({ start: match.index, end: match.index + match[0].length - 1 });
+        }
+        return urls;
+    }
+
+    const isInUrl = (position: number, urls: Array<{start: number, end: number}>): boolean => {
+        return urls.some(url => position >= url.start && position <= url.end);
+    }
+
 
     return (
         <div>
-            {title &&
-                <div className="bg-teal-500">
-                    <div className={`text-center text-black font-mono ${styles.terminalText}`}>{title}</div>
-                </div>
-            }
             <div
                 ref={containerRef}
                 className="w-full h-full flex flex-col overflow-y-auto min-h-0 focus:outline-none text-white"
@@ -445,6 +453,7 @@ export default function TerminalWindow({ title, prefill, terminalState, setTermi
                                 style={{ minHeight: '1.5em', cursor: 'default' }}
                             >
                                 {(() => {
+                                    const urls = findUrls(value.content);
                                     if (focusedIdx === idx || terminalState == TerminalState.VISUAL && (focusedIdx >= selectionStart[0] && focusedIdx <= selectionEnd[0])) {
                                         let chars = value.content.split("");
                                         if (chars.length == 0) {
@@ -453,18 +462,112 @@ export default function TerminalWindow({ title, prefill, terminalState, setTermi
                                         if (terminalState == TerminalState.VISUAL && caretPos == chars.length && focusedIdx == idx) {
                                             chars.push(" ");
                                         }
-                                        return chars.map((c, i) => {
-                                            if (i === caretPos && focusedIdx == idx) {
-                                                return <span key={i} className="bg-white text-black inline leading-none p-0 m-0">{c}</span>
-                                            }
+                                        const elements: React.ReactNode[] = [];
+                                        let currentUrlSegment: string[] = [];
+                                        let currentUrlStart = -1;
+                                        
+                                        chars.forEach((c, i) => {
+                                            const inUrl = isInUrl(i, urls);
+                                            const isCursor = i === caretPos && focusedIdx == idx;
                                             // this needs to be refactored :(
-                                            else if (terminalState == TerminalState.VISUAL && ((idx > selectionStart[0] && idx < selectionEnd[0]) || (idx == selectionStart[0] && selectionStart[0] == selectionEnd[0] && i >= selectionStart[1] && i <= selectionEnd[1]) || ((idx == selectionStart[0] && idx < selectionEnd[0] && i >= selectionStart[1]) || (idx == selectionEnd[0] && idx > selectionStart[0] && i <= selectionEnd[1])))) {
-                                                return <span key={i} className="bg-gray-400 text-black inline leading-none p-0 m-0">{c}</span>
+                                            const isSelected = terminalState == TerminalState.VISUAL && ((idx > selectionStart[0] && idx < selectionEnd[0]) || (idx == selectionStart[0] && selectionStart[0] == selectionEnd[0] && i >= selectionStart[1] && i <= selectionEnd[1]) || ((idx == selectionStart[0] && idx < selectionEnd[0] && i >= selectionStart[1]) || (idx == selectionEnd[0] && idx > selectionStart[0] && i <= selectionEnd[1])));
+                                            
+                                            if (inUrl && !isCursor && !isSelected) {
+                                                if (currentUrlStart === -1) {
+                                                    currentUrlStart = i;
+                                                }
+                                                currentUrlSegment.push(c);
+                                            } else {
+                                                if (currentUrlSegment.length > 0) {
+                                                    const urlText = currentUrlSegment.join("");
+                                                    const urlStart = currentUrlStart;
+                                                    
+                                                    elements.push(
+                                                        <a
+                                                            key={`url-${urlStart}`}
+                                                            href={urlText}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="underline text-blue-400 hover:text-blue-300"
+                                                            onClick={(e) => {
+                                                                if (terminalState !== TerminalState.DEFAULT) {
+                                                                    e.preventDefault();
+                                                                }
+                                                            }}
+                                                        >
+                                                            {urlText}
+                                                        </a>
+                                                    );
+                                                    currentUrlSegment = [];
+                                                    currentUrlStart = -1;
+                                                }
+                                                
+                                                if (isCursor) {
+                                                    elements.push(<span key={i} className="bg-white text-black inline leading-none p-0 m-0">{c}</span>);
+                                                } else if (isSelected) {
+                                                    elements.push(<span key={i} className="bg-gray-400 text-black inline leading-none p-0 m-0">{c}</span>);
+                                                } else {
+                                                    elements.push(c);
+                                                }
                                             }
-                                            else return c;
-                                    });
+                                        });
+                                        
+                                        if (currentUrlSegment.length > 0) {
+                                            const urlText = currentUrlSegment.join("");
+                                            const urlStart = currentUrlStart;
+                                            
+                                            elements.push(
+                                                <a
+                                                    key={`url-${urlStart}`}
+                                                    href={urlText}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="underline text-blue-400 hover:text-blue-300"
+                                                    onClick={(e) => {
+                                                        if (terminalState !== TerminalState.DEFAULT) {
+                                                            e.preventDefault();
+                                                        }
+                                                    }}
+                                                >
+                                                    {urlText}
+                                                </a>
+                                            );
+                                        }
+                                        
+                                        return elements;
                                     } else {
-                                        return value.content;
+                                        const urls = findUrls(value.content);
+                                        if (urls.length === 0) {
+                                            return value.content;
+                                        }
+                                        
+                                        const elements: React.ReactNode[] = [];
+                                        let lastIndex = 0;
+                                        
+                                        urls.forEach((url) => {
+                                            if (url.start > lastIndex) {
+                                                elements.push(value.content.slice(lastIndex, url.start));
+                                            }
+                                            const urlText = value.content.slice(url.start, url.end + 1);
+                                            elements.push(
+                                                <a
+                                                    key={`url-${url.start}`}
+                                                    href={urlText}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="underline text-blue-400 hover:text-blue-300"
+                                                >
+                                                    {urlText}
+                                                </a>
+                                            );
+                                            lastIndex = url.end + 1;
+                                        });
+                                        
+                                        if (lastIndex < value.content.length) {
+                                            elements.push(value.content.slice(lastIndex));
+                                        }
+                                        
+                                        return elements;
                                     }
                                 })()}
                             </div>
