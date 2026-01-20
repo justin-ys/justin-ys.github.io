@@ -374,23 +374,32 @@ export default function TerminalWindow({ prefill, terminalState, setTerminalStat
     const containerHandleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
         if (terminalState !== TerminalState.INSERT) {
             e.preventDefault();
-            if (e.key === 'ArrowLeft') {
+            if (e.key === 'ArrowLeft' || e.key == 'h') {
                 lastFocusedIdx.current = focusedIdx;
                 caretSet((pos: number) => pos-1);
             }
-            else if (e.key == 'ArrowRight') {
+            else if (e.key == 'ArrowRight' || e.key == 'l') {
                 lastFocusedIdx.current = focusedIdx;
                 caretSet((pos: number)  => pos+1);
-            } else if (e.key === 'ArrowUp') {
+            } else if (e.key === 'ArrowUp' || e.key == 'k') {
                 if (focusedIdx > 0) {
                     focusedIdxSet(focusedIdx - 1);
                     caretSet((pos: number)  => pos, focusedIdx - 1);
                 }
-            } else if (e.key === 'ArrowDown') {
+            } else if (e.key === 'ArrowDown' || e.key == 'j') {
                 if (focusedIdx < inputs.length - 1) {
                     focusedIdxSet(focusedIdx + 1);
                     caretSet((pos: number)  => pos, focusedIdx + 1);
                 }
+            }
+            else if (e.key === '^' || (e.key === '6' && e.shiftKey)) {
+                caretSet(0);
+            }
+            else if (e.key === '$' || (e.key === '4' && e.shiftKey)) {
+                caretSet((_pos: number, idx: number = focusedIdx) => {
+                    const line = inputs[idx];
+                    return line ? line.content.length : 0;
+                });
             }
         }
     }
