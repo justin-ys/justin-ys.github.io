@@ -19,7 +19,7 @@ export default function TerminalWindow({ prefill, terminalState, setTerminalStat
     const [inputs, setInputs] = useState<Vimput[]>([{content: ''}]);
     const inputRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
     const containerRef = useRef<HTMLDivElement>(null);
-    const lineRef = useRef<HTMLDivElement>(null);
+    const lineRefs = useRef<(HTMLDivElement | null)[]>([]);
     const [showTildes, setShowTildes] = useState<boolean>(true);
     const [tildeCount, setTildeCount] = useState<number>(20);
     const tildeRef = useRef<HTMLDivElement>(null);
@@ -422,6 +422,40 @@ export default function TerminalWindow({ prefill, terminalState, setTerminalStat
         return urls.some(url => position >= url.start && position <= url.end);
     }
 
+    const getScrollContainer = useCallback((element: HTMLElement): HTMLElement | null => {
+        let current: HTMLElement | null = element.parentElement;
+        while (current) {
+            const { overflowY } = window.getComputedStyle(current);
+            if ((overflowY === 'auto' || overflowY === 'scroll') && current.scrollHeight > current.clientHeight) {
+                return current;
+            }
+            current = current.parentElement;
+        }
+        return null;
+    }, []);
+
+    const scrollCursorIntoView = useCallback(() => {
+        const activeLineIdx = terminalState === TerminalState.INSERT ? currentlyEditing : focusedIdx;
+        const lineEl = lineRefs.current[activeLineIdx];
+        if (!lineEl) return;
+
+        const scrollContainer = getScrollContainer(lineEl);
+        if (!scrollContainer) return;
+
+        const lineHeight = lineEl.offsetHeight;
+        const lineRect = lineEl.getBoundingClientRect();
+        const containerRect = scrollContainer.getBoundingClientRect();
+
+        if (lineRect.top < containerRect.top) {
+            scrollContainer.scrollTop -= lineHeight;
+        } else if (lineRect.bottom > containerRect.bottom) {
+            scrollContainer.scrollTop += lineHeight;
+        }
+    }, [terminalState, currentlyEditing, focusedIdx, getScrollContainer]);
+
+    useEffect(() => {
+        scrollCursorIntoView();
+    }, [focusedIdx, caretPos, currentlyEditing, terminalState, scrollCursorIntoView]);
 
     return (
         <div>
@@ -435,7 +469,7 @@ export default function TerminalWindow({ prefill, terminalState, setTerminalStat
                 {inputs.map((value, idx) => (
                     <div
                         key={idx}
-                        ref={idx === 0 ? lineRef : undefined}
+                        ref={el => { lineRefs.current[idx] = el; }}
                         className={`flex flex-row gap-2 ${styles.terminalText}`}
                     >
                         <div className="text-right w-6">{`${idx}`}</div>
