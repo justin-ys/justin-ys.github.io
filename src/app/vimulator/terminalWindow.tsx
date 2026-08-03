@@ -478,7 +478,7 @@ export default function TerminalWindow({ prefill, terminalState, setTerminalStat
                         ref={el => { lineRefs.current[idx] = el; }}
                         className={`flex flex-row gap-2 ${styles.terminalText}`}
                     >
-                        <div className="text-right w-6">{`${idx}`}</div>
+                        <div className="text-right w-6 shrink-0">{`${idx}`}</div>
                         {terminalState === TerminalState.INSERT ? (
                             <textarea
                                 rows={1}
