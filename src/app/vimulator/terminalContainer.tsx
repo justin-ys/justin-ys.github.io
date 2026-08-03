@@ -24,7 +24,7 @@ export default function TerminalContainer () {
     }, [terminalState])
 
     const handleFileChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-        setCurFile(e.target.value as 'welcome' | 'portfolio');
+        setCurFile(e.target.value as 'welcome' | 'portfolio' | 'writings');
     }, []);
 
     useEffect(() => {
@@ -40,6 +40,7 @@ export default function TerminalContainer () {
                         File: <select value={curFile} onChange={handleFileChange} className="bg-transparent text-black font-mono border-none outline-none cursor-pointer inline-block text-center">
                             <option value="welcome">welcome.vtxt</option>
                             <option value="portfolio">portfolio.vtxt</option>
+                            <option value="writings">writings.vtxt</option>
                         </select>
                     </div>
                 </div>
