@@ -87,7 +87,7 @@ export default function TerminalWindow({ prefill, terminalState, setTerminalStat
         if (curState.current != terminalState) {
             if (terminalState == TerminalState.INSERT && (curState.current == TerminalState.DEFAULT || curState.current == TerminalState.VISUAL)) {
                 setTimeout(() => {
-                    inputRefs.current[focusedIdx]?.focus();
+                    inputRefs.current[focusedIdx]?.focus({ preventScroll: true });
                     inputRefs.current[focusedIdx]?.setSelectionRange(caretPos, caretPos);
                 });
             }
@@ -320,7 +320,7 @@ export default function TerminalWindow({ prefill, terminalState, setTerminalStat
                 }
             }
             setTimeout(() => {
-                inputRefs.current[index + 1]?.focus();
+                inputRefs.current[index + 1]?.focus({ preventScroll: true });
             }, 0);
             inputRefs.current[index+1]?.setSelectionRange(0, 0);
         }
@@ -341,7 +341,7 @@ export default function TerminalWindow({ prefill, terminalState, setTerminalStat
                     ...prevInputs.slice(index + 1)
                 ])
                 setTimeout(() => {
-                    inputRefs.current[index - 1]?.focus();
+                    inputRefs.current[index - 1]?.focus({ preventScroll: true });
                 }, 0);
             }
         }
@@ -351,7 +351,7 @@ export default function TerminalWindow({ prefill, terminalState, setTerminalStat
                 const pos = inputRefs.current[index]?.selectionStart;
                 if (pos != null) {
                     setTimeout(() => {
-                        inputRefs.current[index-1]?.focus();
+                        inputRefs.current[index-1]?.focus({ preventScroll: true });
                         inputRefs.current[index-1]?.setSelectionRange(pos, pos);
                     }, 0);
                 }
@@ -363,7 +363,7 @@ export default function TerminalWindow({ prefill, terminalState, setTerminalStat
                 const pos = inputRefs.current[index]?.selectionStart;
                 if (pos != null) {
                     setTimeout(() => {
-                        inputRefs.current[index+1]?.focus();
+                        inputRefs.current[index+1]?.focus({ preventScroll: true });
                         inputRefs.current[index+1]?.setSelectionRange(pos, pos);
                     }, 0);
                 }
@@ -436,20 +436,26 @@ export default function TerminalWindow({ prefill, terminalState, setTerminalStat
 
     const scrollCursorIntoView = useCallback(() => {
         const activeLineIdx = terminalState === TerminalState.INSERT ? currentlyEditing : focusedIdx;
-        const lineEl = lineRefs.current[activeLineIdx];
+        const lineEl = terminalState === TerminalState.INSERT ? inputRefs.current[activeLineIdx] : lineRefs.current[activeLineIdx];
         if (!lineEl) return;
 
         const scrollContainer = getScrollContainer(lineEl);
         if (!scrollContainer) return;
 
-        const lineHeight = lineEl.offsetHeight;
         const lineRect = lineEl.getBoundingClientRect();
         const containerRect = scrollContainer.getBoundingClientRect();
 
-        if (lineRect.top < containerRect.top) {
-            scrollContainer.scrollTop -= lineHeight;
-        } else if (lineRect.bottom > containerRect.bottom) {
-            scrollContainer.scrollTop += lineHeight;
+        if (activeLineIdx == 0) {
+            scrollContainer.scrollTop = 0;
+        }
+        else if (activeLineIdx == inputs.length - 1) {
+            scrollContainer.scrollTop = scrollContainer.scrollHeight;
+        }
+        else if (lineRect.top < containerRect.top) {
+            lineEl.scrollIntoView({block: 'start'})
+        }
+        else if (lineRect.bottom > containerRect.bottom) {
+            lineEl.scrollIntoView({block: 'end'})
         }
     }, [terminalState, currentlyEditing, focusedIdx, getScrollContainer]);
 
