@@ -20,7 +20,7 @@ export default function TerminalWindow({ prefill, terminalState, setTerminalStat
     const inputRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
     const containerRef = useRef<HTMLDivElement>(null);
     const lineRefs = useRef<(HTMLDivElement | null)[]>([]);
-    const [showTildes, setShowTildes] = useState<boolean>(true);
+    const [showTildes, setShowTildes] = useState<boolean>(false); // been buggy lately, disabling for now
     const [tildeCount, setTildeCount] = useState<number>(20);
     const tildeRef = useRef<HTMLDivElement>(null);
     const [currentlyEditing, setCurrentlyEditing] = useState<number>(0);
@@ -34,6 +34,8 @@ export default function TerminalWindow({ prefill, terminalState, setTerminalStat
     const [focusedIdx, setFocusedIdx] = useState<number>(0);
     const lastFocusedIdx = useRef<number>(0);
     const curFocusedIdx = useRef<number>(0);
+
+    const [hideCaret, setHideCaret] = useState<boolean>(false);
 
     const caretSet = useCallback((newPos: number | ((arg0: number) => number), line: number = focusedIdx) => {
         lastCaretPos.current = caretPos;
@@ -85,6 +87,7 @@ export default function TerminalWindow({ prefill, terminalState, setTerminalStat
         };
 
         if (curState.current != terminalState) {
+            setHideCaret(terminalState == TerminalState.CMD);
             if (terminalState == TerminalState.INSERT && (curState.current == TerminalState.DEFAULT || curState.current == TerminalState.VISUAL)) {
                 setTimeout(() => {
                     inputRefs.current[focusedIdx]?.focus({ preventScroll: true });
@@ -227,7 +230,7 @@ export default function TerminalWindow({ prefill, terminalState, setTerminalStat
     }, [inputs, selectionStart, selectionEnd]);
 
     const handleKeydown = useCallback((ev: KeyboardEvent) => {
-        
+        if (terminalState === TerminalState.CMD) return;
         const handleYank = async () => {
             const text = getSelection();
             focusedIdxSet(selectionStart[0]);
@@ -372,6 +375,7 @@ export default function TerminalWindow({ prefill, terminalState, setTerminalStat
     };
 
     const containerHandleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (terminalState === TerminalState.CMD) return;
         if (terminalState !== TerminalState.INSERT) {
             e.preventDefault();
             if (e.key === 'ArrowLeft' || e.key == 'h') {
@@ -517,7 +521,7 @@ export default function TerminalWindow({ prefill, terminalState, setTerminalStat
                                         
                                         chars.forEach((c, i) => {
                                             const inUrl = isInUrl(i, urls);
-                                            const isCursor = i === caretPos && focusedIdx == idx;
+                                            const isCursor = hideCaret ? false : i === caretPos && focusedIdx == idx;
                                             // this needs to be refactored :(
                                             const isSelected = terminalState == TerminalState.VISUAL && ((idx > selectionStart[0] && idx < selectionEnd[0]) || (idx == selectionStart[0] && selectionStart[0] == selectionEnd[0] && i >= selectionStart[1] && i <= selectionEnd[1]) || ((idx == selectionStart[0] && idx < selectionEnd[0] && i >= selectionStart[1]) || (idx == selectionEnd[0] && idx > selectionStart[0] && i <= selectionEnd[1])));
                                             

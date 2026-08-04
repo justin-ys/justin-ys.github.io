@@ -1,9 +1,12 @@
 'use client' 
 
 import TerminalWindow from "./terminalWindow";
-import TerminalState from "./terminalState"
+import TerminalState from "./terminalState";
+import CommandArea from "./commandArea";
 import styles from './vimulator.module.css'
 import resolveFromName from "../assets/asset_resolver";
+import { TerminalEvents } from "./terminalEvents";
+import mitt from 'mitt';
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -17,9 +20,24 @@ export default function TerminalContainer () {
 
     const [terminalState, setTerminalState] = useState(TerminalState.DEFAULT);
 
+    // EVENT HANDLING
+    const emitter = mitt<TerminalEvents>();
+
+    emitter.on("CmdClear", e => setTerminalState(TerminalState.DEFAULT));
+    emitter.on("ChangeFile", fname => {
+        const file = fname.split(".vtxt")[0];
+        const data = resolveFromName(file);
+        if (!data) emitter.emit("InvalidCmd", "E212: No such file or directory")
+        setCurFile(file);
+        setData(resolveFromName(file));
+    })
+
+    // OTHER HANDLERS
+
     const handleKeydown = useCallback((ev: KeyboardEvent) => {
         if (ev.key == "i" && terminalState == TerminalState.DEFAULT) setTerminalState(TerminalState.INSERT);
         if (ev.key == "v" && terminalState == TerminalState.DEFAULT) setTerminalState(TerminalState.VISUAL);
+        if (ev.key == ":" && terminalState == TerminalState.DEFAULT) setTerminalState(TerminalState.CMD);
         if (ev.key == "Escape" && terminalState != TerminalState.DEFAULT) setTerminalState(TerminalState.DEFAULT);
     }, [terminalState])
 
@@ -47,10 +65,7 @@ export default function TerminalContainer () {
                 <TerminalWindow prefill={data} terminalState={terminalState}
                     setTerminalState={setTerminalState} />
             </div>
-            <div className={`h-[5vh] sticky flex items-end font-mono text-white ${styles.terminalText}`}>
-                {terminalState == TerminalState.INSERT ? "-- INSERT --" : ""}
-                {terminalState == TerminalState.VISUAL ? "-- VISUAL --" : ""}
-            </div>
+            <CommandArea terminalState={terminalState} emitter={emitter}/>
         </div>
     )
 }

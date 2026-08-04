@@ -1,3 +1,14 @@
 .terminalText {
     font-family: "Cascadia Code", "Fira Code", "Consolas", "Monaco", "Lucida Console", monospace;
 }
+
+.commandInput {
+    overflow-x: scroll;
+    overflow-y: hidden;
+    white-space: nowrap;
+    scrollbar-width: none;
+}
+
+.commandInput::-webkit-scrollbar {
+    display: none;
+}
