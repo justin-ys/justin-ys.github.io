@@ -60,6 +60,9 @@ function CommandInput({ emitter }: CommandInputProps) {
             else if (parts[0] == "help") {
                 emitter.emit("ChangeFile", "help.vtxt");
             }
+            else if (!cmd) {
+                ;
+            }
             else emitter.emit("InvalidCmd", `E492: Not an editor command: ${cmd}`);
             emitter.emit("CmdClear");
         }
